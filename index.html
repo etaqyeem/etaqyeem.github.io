@@ -446,10 +446,12 @@ mark{background:var(--amber-soft); color:var(--amber); border-radius:3px; paddin
     font-family:var(--ui); font-size:8.9pt; line-height:1.38;
   }
   #report *{print-color-adjust:exact; -webkit-print-color-adjust:exact}
-  .pg{page-break-after:always; break-after:page}
+  .pg{page-break-after:always; break-after:page;
+    display:flex; flex-direction:column; min-height:90vh}
   .pg:last-child{page-break-after:auto; break-after:auto}
 
   .rp-head{
+    flex:none;
     display:flex; align-items:center; justify-content:space-between; gap:12pt;
     background:linear-gradient(100deg,#0E3B4C 0%,#14526A 62%,#1A6580 100%);
     color:#fff; padding:6pt 11pt; border-radius:4pt 4pt 0 0;
@@ -474,7 +476,7 @@ mark{background:var(--amber-soft); color:var(--amber); border-radius:3px; paddin
     margin-bottom:6pt; border-radius:0 0 3pt 3pt}
 
   #report h2{
-    font-family:var(--display); font-size:9.5pt; margin:5pt 0 2.5pt; color:#0E3B4C;
+    font-family:var(--display); font-size:9.8pt; margin:7pt 0 3.5pt; color:#0E3B4C;
     border-right:3.5pt solid #E3B23C; padding:1pt 7pt 1pt 0; background:#EFF5F8;
     border-radius:0 3pt 3pt 0;
   }
@@ -485,7 +487,7 @@ mark{background:var(--amber-soft); color:var(--amber); border-radius:3px; paddin
     border:1pt solid #0A2E3B;
   }
   .rp-hero .lbl{font-size:8pt; color:#E3B23C; letter-spacing:.6pt; font-weight:600}
-  .rp-hero .big{font-family:var(--display); font-size:21pt; font-weight:600; color:#fff;
+  .rp-hero .big{font-family:var(--display); font-size:23pt; font-weight:600; color:#fff;
     line-height:1.12; font-variant-numeric:tabular-nums}
   .rp-hero .big span{font-size:9.5pt; font-weight:400; color:#BFD9E4}
   .rp-hero .rng{display:flex; justify-content:center; gap:22pt; margin-top:3.5pt;
@@ -495,13 +497,13 @@ mark{background:var(--amber-soft); color:var(--amber); border-radius:3px; paddin
 
   .rp-facts{display:grid; grid-template-columns:repeat(4,1fr); gap:2.5pt 7pt}
   .rp-facts > div{border:.7pt solid #D3E0E7; border-right:2.5pt solid #1A6580;
-    border-radius:0 3pt 3pt 0; padding:1.8pt 5pt; background:#F6FAFC}
+    border-radius:0 3pt 3pt 0; padding:2.4pt 5pt; background:#F6FAFC}
   .rp-facts span{display:block; font-size:6.8pt; color:#5B7280; line-height:1.25}
   .rp-facts b{font-size:8.5pt; font-weight:600; color:#12202A; line-height:1.3;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block}
 
   table.rp-tbl{width:100%; border-collapse:collapse; font-size:7.9pt; table-layout:auto}
-  table.rp-tbl th, table.rp-tbl td{border:.7pt solid #CFDDE5; padding:2pt 3.5pt; text-align:center;
+  table.rp-tbl th, table.rp-tbl td{border:.7pt solid #CFDDE5; padding:2.7pt 3.5pt; text-align:center;
     font-variant-numeric:tabular-nums; white-space:nowrap; overflow-wrap:normal; word-break:keep-all}
   table.rp-tbl thead th{background:#0E3B4C; color:#fff; font-weight:600; font-size:8pt;
     border-color:#0E3B4C}
@@ -515,23 +517,23 @@ mark{background:var(--amber-soft); color:var(--amber); border-radius:3px; paddin
 
   .rp-two{display:grid; grid-template-columns:1fr 1.25fr; gap:12pt; align-items:start}
   table.rp-kv{width:100%; border-collapse:collapse; font-size:8.3pt}
-  table.rp-kv th{text-align:right; font-weight:400; color:#3C4C56; padding:2.3pt 5pt;
+  table.rp-kv th{text-align:right; font-weight:400; color:#3C4C56; padding:3pt 5pt;
     border-bottom:.7pt solid #E1EAEF; white-space:nowrap}
-  table.rp-kv td{text-align:left; font-weight:600; padding:2.3pt 5pt; white-space:nowrap;
+  table.rp-kv td{text-align:left; font-weight:600; padding:3pt 5pt; white-space:nowrap;
     border-bottom:.7pt solid #E1EAEF; font-variant-numeric:tabular-nums}
   table.rp-kv tr.st th{background:#EFF5F8; color:#0E3B4C; font-weight:700}
   table.rp-kv tr.st td{background:#EFF5F8; color:#0E3B4C; font-weight:700}
 
   table.rp-final{width:100%; border-collapse:collapse; margin-top:6pt; font-size:7.9pt}
-  table.rp-final td{border:.7pt solid #CFDDE5; padding:3.2pt; text-align:center; color:#5B7280;
+  table.rp-final td{border:.7pt solid #CFDDE5; padding:4.2pt; text-align:center; color:#5B7280;
     background:#F6FAFC; white-space:nowrap}
   table.rp-final td b{display:block; font-size:10pt; color:#12202A; margin-top:1pt;
     font-variant-numeric:tabular-nums}
   table.rp-final td.tot{background:#0E3B4C!important; color:#E3B23C; border-color:#0E3B4C}
   table.rp-final td.tot b{color:#fff; font-size:12pt}
 
-  .rp-sign{display:flex; justify-content:space-between; gap:18pt; margin-top:9pt;
-    font-size:8pt; color:#3C4C56}
+  .rp-sign{display:flex; justify-content:space-between; gap:18pt; margin-top:auto;
+    padding-top:10pt; font-size:8.4pt; color:#3C4C56}
   .rp-sign > div{flex:1; border-top:1pt solid #B9CAD3; padding-top:4pt; text-align:center}
 
   .rp-foot{margin-top:6pt; border-top:.7pt solid #E1EAEF; padding-top:3pt;
@@ -539,13 +541,14 @@ mark{background:var(--amber-soft); color:var(--amber); border-radius:3px; paddin
 
   .rp-note{font-size:8.2pt; color:#5B7280; margin:3pt 0 5pt}
   .rp-chart{border:.7pt solid #D3E0E7; border-top:2.5pt solid #1A6580;
-    border-radius:0 0 4pt 4pt; padding:7pt; background:#FBFDFE}
-  .rp-chart svg{width:100%; height:auto; display:block}
+    border-radius:0 0 4pt 4pt; padding:7pt; background:#FBFDFE;
+    flex:1 1 auto; min-height:140pt; display:flex; align-items:center; justify-content:center}
+  .rp-chart svg{width:100%; height:auto; max-height:100%; display:block}
   #report svg text{fill:#3C4C56}
   #report svg text.v, #report svg text.n{fill:#12202A; font-weight:600}
   .rp-legend{display:flex; gap:16pt; justify-content:center; margin-top:5pt; font-size:8.4pt; color:#3C4C56}
   .rp-legend i{display:inline-block; width:9pt; height:9pt; border-radius:2pt; margin-inline-end:4pt; vertical-align:-1pt}
-  .rp-compo{margin-top:8pt; display:grid; grid-template-columns:1fr 1fr; gap:3pt 18pt; font-size:9pt}
+  .rp-compo{margin-top:8pt; flex:none; display:grid; grid-template-columns:1fr 1fr; gap:3pt 18pt; font-size:9pt}
   .rp-compo .compo-row{display:flex; align-items:center; gap:6pt;
     border-bottom:.7pt solid #E1EAEF; padding-bottom:2.5pt}
   .rp-compo .sw{width:9pt; height:9pt; border-radius:2pt; flex:none}
