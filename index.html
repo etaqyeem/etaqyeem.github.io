@@ -432,14 +432,121 @@ mark{background:var(--amber-soft); color:var(--amber); border-radius:3px; paddin
 /* ---------- print ---------- */
 #report{display:none}
 @media print{
-  .topbar, .wrap, .foot{display:none!important}
-  #report{display:block; padding:0; color:#000; background:#fff}
-  #report table{width:100%; border-collapse:collapse; font-size:11pt}
-  #report td, #report th{border:1px solid #999; padding:5px 8px}
-  #report h1{font-size:16pt; margin-bottom:4px}
-  #report .meta{font-size:10pt; margin-bottom:14px; color:#333}
-  #report h3{font-size:12pt; margin:16px 0 6px}
+  @page{size:A4 portrait; margin:10mm 10mm 9mm}
+  .topbar, .wrap, .foot, .gate{display:none!important}
+  #report{
+    display:block; background:#fff; color:#12202A;
+    font-family:var(--ui); font-size:9.3pt; line-height:1.45;
+  }
+  #report *{print-color-adjust:exact; -webkit-print-color-adjust:exact}
+  .pg{page-break-after:always; break-after:page}
+  .pg:last-child{page-break-after:auto; break-after:auto}
+
+  .rp-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12pt;
+    background:linear-gradient(100deg,#0E3B4C 0%,#14526A 62%,#1A6580 100%);
+    color:#fff; padding:9pt 12pt; border-radius:4pt 4pt 0 0;
+  }
+  .rp-head h1{font-family:var(--display); font-size:17pt; margin:0; color:#fff; letter-spacing:-.3pt}
+  .rp-head .sub{font-size:8.4pt; color:#BFD9E4; margin-top:2pt}
+  .rp-ref{flex:none; text-align:center; background:#E3B23C; color:#3D2A05;
+    border-radius:4pt; padding:4pt 12pt; min-width:78pt}
+  .rp-ref span{display:block; font-size:7.2pt; letter-spacing:.4pt; font-weight:600}
+  .rp-ref b{display:block; font-family:var(--display); font-size:14pt; line-height:1.15;
+    font-variant-numeric:tabular-nums; color:#1B1304}
+
+  .rp-idcard{border:1pt solid #CFDDE5; border-radius:4pt; overflow:hidden; margin-bottom:9pt}
+  .rp-idcard .ttl{background:#EFF5F8; color:#0E3B4C; font-family:var(--display);
+    font-size:9.6pt; font-weight:600; padding:4pt 9pt; border-bottom:1pt solid #CFDDE5}
+  .rp-idcard .rp-facts{padding:7pt 9pt}
+  .rp-idfoot{display:flex; gap:18pt; flex-wrap:wrap; padding:5pt 9pt;
+    background:#F6FAFC; border-top:1pt solid #E1EAEF; font-size:8.4pt; color:#5B7280}
+  .rp-idfoot b{color:#12202A; font-weight:600; white-space:nowrap}
+  .rp-idfoot span{white-space:nowrap}
+  .rp-rule{height:3pt; background:linear-gradient(90deg,#E3B23C 0%,#C8912A 45%,#0E3B4C 100%);
+    margin-bottom:9pt; border-radius:0 0 3pt 3pt}
+
+  #report h2{
+    font-family:var(--display); font-size:10.2pt; margin:9pt 0 4pt; color:#0E3B4C;
+    border-right:3.5pt solid #E3B23C; padding:1pt 7pt 1pt 0; background:#EFF5F8;
+    border-radius:0 3pt 3pt 0;
+  }
+
+  .rp-hero{
+    background:linear-gradient(115deg,#0E3B4C 0%,#164F65 100%);
+    border-radius:5pt; padding:9pt 12pt; text-align:center; color:#fff;
+    border:1pt solid #0A2E3B;
+  }
+  .rp-hero .lbl{font-size:8.6pt; color:#E3B23C; letter-spacing:.6pt; font-weight:600}
+  .rp-hero .big{font-family:var(--display); font-size:26pt; font-weight:600; color:#fff;
+    line-height:1.12; font-variant-numeric:tabular-nums}
+  .rp-hero .big span{font-size:9.5pt; font-weight:400; color:#BFD9E4}
+  .rp-hero .rng{display:flex; justify-content:center; gap:24pt; margin-top:6pt;
+    border-top:.8pt solid rgba(227,178,60,.55); padding-top:5pt}
+  .rp-hero .rng span{font-size:8pt; color:#BFD9E4}
+  .rp-hero .rng b{display:block; font-size:11pt; color:#fff; font-variant-numeric:tabular-nums}
+
+  .rp-facts{display:grid; grid-template-columns:repeat(4,1fr); gap:4pt 8pt}
+  .rp-facts > div{border:.7pt solid #D3E0E7; border-right:2.5pt solid #1A6580;
+    border-radius:0 3pt 3pt 0; padding:3pt 6pt; background:#F6FAFC}
+  .rp-facts span{display:block; font-size:7.4pt; color:#5B7280}
+  .rp-facts b{font-size:9.2pt; font-weight:600; color:#12202A;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block}
+
+  table.rp-tbl{width:100%; border-collapse:collapse; font-size:8.1pt; table-layout:auto}
+  table.rp-tbl th, table.rp-tbl td{border:.7pt solid #CFDDE5; padding:3pt 3.5pt; text-align:center;
+    font-variant-numeric:tabular-nums; white-space:nowrap; overflow-wrap:normal; word-break:keep-all}
+  table.rp-tbl thead th{background:#0E3B4C; color:#fff; font-weight:600; font-size:8pt;
+    border-color:#0E3B4C}
+  table.rp-tbl tbody tr:nth-child(even) td{background:#F6FAFC}
+  table.rp-tbl td.nm{text-align:right; font-weight:600; color:#0E3B4C}
+  table.rp-tbl td.dt i{font-style:normal; font-size:7.2pt; color:#7A8C97}
+  table.rp-tbl td.pos{color:#12704E; background:#E9F5EF!important; font-weight:600}
+  table.rp-tbl td.neg{color:#9E3B2E; background:#FBEDEA!important; font-weight:600}
+  table.rp-tbl tr.sum td{background:#E3B23C!important; color:#3D2A05; font-size:9.4pt; font-weight:700;
+    border-color:#C8912A}
+
+  .rp-two{display:grid; grid-template-columns:1fr 1.25fr; gap:12pt; align-items:start}
+  table.rp-kv{width:100%; border-collapse:collapse; font-size:8.8pt}
+  table.rp-kv th{text-align:right; font-weight:400; color:#3C4C56; padding:3.5pt 5pt;
+    border-bottom:.7pt solid #E1EAEF; white-space:nowrap}
+  table.rp-kv td{text-align:left; font-weight:600; padding:3.5pt 5pt; white-space:nowrap;
+    border-bottom:.7pt solid #E1EAEF; font-variant-numeric:tabular-nums}
+  table.rp-kv tr.st th{background:#EFF5F8; color:#0E3B4C; font-weight:700}
+  table.rp-kv tr.st td{background:#EFF5F8; color:#0E3B4C; font-weight:700}
+
+  table.rp-final{width:100%; border-collapse:collapse; margin-top:10pt; font-size:8.4pt}
+  table.rp-final td{border:.7pt solid #CFDDE5; padding:5pt; text-align:center; color:#5B7280;
+    background:#F6FAFC; white-space:nowrap}
+  table.rp-final td b{display:block; font-size:11pt; color:#12202A; margin-top:2pt;
+    font-variant-numeric:tabular-nums}
+  table.rp-final td.tot{background:#0E3B4C!important; color:#E3B23C; border-color:#0E3B4C}
+  table.rp-final td.tot b{color:#fff; font-size:13.5pt}
+
+  .rp-sign{display:flex; justify-content:space-between; gap:18pt; margin-top:15pt;
+    font-size:8.6pt; color:#3C4C56}
+  .rp-sign > div{flex:1; border-top:1pt solid #B9CAD3; padding-top:4pt; text-align:center}
+
+  .rp-foot{margin-top:9pt; border-top:.7pt solid #E1EAEF; padding-top:4pt;
+    font-size:7.4pt; color:#7A8C97; text-align:center}
+
+  .rp-note{font-size:8.2pt; color:#5B7280; margin:3pt 0 5pt}
+  .rp-chart{border:.7pt solid #D3E0E7; border-top:2.5pt solid #1A6580;
+    border-radius:0 0 4pt 4pt; padding:7pt; background:#FBFDFE}
+  .rp-chart svg{width:100%; height:auto; display:block}
+  #report svg text{fill:#3C4C56}
+  #report svg text.v, #report svg text.n{fill:#12202A; font-weight:600}
+  .rp-legend{display:flex; gap:16pt; justify-content:center; margin-top:5pt; font-size:8.4pt; color:#3C4C56}
+  .rp-legend i{display:inline-block; width:9pt; height:9pt; border-radius:2pt; margin-inline-end:4pt; vertical-align:-1pt}
+  .rp-compo{margin-top:8pt; display:grid; grid-template-columns:1fr 1fr; gap:3pt 18pt; font-size:9pt}
+  .rp-compo .compo-row{display:flex; align-items:center; gap:6pt;
+    border-bottom:.7pt solid #E1EAEF; padding-bottom:2.5pt}
+  .rp-compo .sw{width:9pt; height:9pt; border-radius:2pt; flex:none}
+  .rp-compo .nm{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .rp-compo .am{font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .rp-compo .pcv{color:#7A8C97; width:34pt; text-align:left}
 }
+
 </style>
 <style>
 html,body{margin:0}
@@ -1134,52 +1241,154 @@ document.getElementById("btnSample").addEventListener("click", function(){
 });
 
 /* ===================== التقرير والطباعة ===================== */
+function dShort(iso){
+  var d = toDate(iso); if(!d) return '—';
+  var p = function(n){ return (n<10?'0':'') + n; };
+  return p(d.getDate()) + '/' + p(d.getMonth()+1) + '/' + d.getFullYear();
+}
+function hShort(iso){
+  var d = toDate(iso); if(!d) return '';
+  try{
+    var p = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',
+      {day:'2-digit', month:'2-digit', year:'numeric'}).formatToParts(d);
+    var g = function(t){ var x = p.find(function(q){ return q.type === t; }); return x ? x.value : ''; };
+    var y = g('year').replace(/[^0-9]/g,'');
+    if(!y) return '';
+    return g('day') + '/' + g('month') + '/' + y + 'هـ';
+  }catch(e){ return ''; }
+}
+function rpRow(label, value, strong){
+  return '<tr'+(strong?' class="st"':'')+'><th>'+label+'</th><td>'+value+'</td></tr>';
+}
+function rpFact(label, value){
+  return '<div><span>'+label+'</span><b>'+(value===''||value==null?'—':value)+'</b></div>';
+}
+
 function buildReport(){
   var R = compute(S);
   var m = S.meta;
-  var h = [];
-  h.push('<h1 style="margin:0 0 4px">تقرير التقييم العقاري</h1>'+
-    '<div style="border-bottom:2px solid #B87D1F;margin-bottom:12px"></div>');
-  h.push('<div class="meta">' +
-    (m.ptype ? m.ptype + ' — ' : '') +
-    (m.district ? m.district + '، ' : '') + (m.city || '') +
-    (m.deed ? ' · صك رقم ' + m.deed : '') +
-    (m.vdate ? ' · تاريخ التقييم: ' + bothDates(m.vdate) : '') +
-    (m.appraiser ? ' · المقيّم: ' + m.appraiser : '') + '</div>');
+  var o = [];
+  var refNo = m.formNo ? esc(m.formNo) : '—';
 
-  h.push('<h3>١. العقارات المقارنة</h3><table><tr><th>المقارن</th><th>نوع العملية</th><th>المساحة م²</th><th>التاريخ</th><th>سعر المتر</th><th>مجموع التسويات</th><th>بعد التسويات</th><th>الوزن</th><th>المساهمة</th></tr>');
-  S.comps.forEach(function(c,i){
+  o.push('<section class="pg">');
+
+  o.push('<div class="rp-head">' +
+    '<div><h1>تقرير التقييم العقاري</h1>' +
+    '<div class="sub">طريقة البيوع المقارنة للأرض &nbsp;·&nbsp; طريقة التكلفة للمباني</div></div>' +
+    '<div class="rp-ref"><span>رقم التقييم</span><b>' + refNo + '</b></div>' +
+    '</div><div class="rp-rule"></div>');
+
+  o.push('<div class="rp-idcard">');
+  o.push('<div class="ttl">بيانات العقار</div>');
+  o.push('<div class="rp-facts">');
+  o.push(rpFact('رقم التقييم', refNo));
+  o.push(rpFact('رقم الصك', m.deed ? esc(m.deed) : '—'));
+  o.push(rpFact('نوع العقار', m.ptype ? esc(m.ptype) : '—'));
+  o.push(rpFact('الحي', m.district ? esc(m.district) : '—'));
+  o.push(rpFact('المدينة', m.city ? esc(m.city) : '—'));
+  o.push(rpFact('مساحة الأرض', money0(num(S.subject.area)) + ' م²'));
+  o.push(rpFact('عدد وعرض الشوارع', esc(String(S.subject.streets === '' ? '—' : S.subject.streets))));
+  o.push(rpFact('طبوغرافية الأرض', esc(S.subject.topoText || '—')));
+  o.push(rpFact('شكل الأرض', esc(S.subject.shapeText || '—')));
+  o.push(rpFact('الموقع العام (١–٥)', esc(String(S.subject.loc === '' ? '—' : S.subject.loc))));
+  o.push(rpFact('سهولة الوصول (١–٥)', esc(String(S.subject.access === '' ? '—' : S.subject.access))));
+  o.push(rpFact('مساحة المباني', money0(num(S.cost.bArea)) + ' م²'));
+  o.push('</div>');
+  o.push('<div class="rp-idfoot">' +
+    '<span>تاريخ التقييم: <b>' + (m.vdate ? esc(bothDates(m.vdate)) : '—') + '</b></span>' +
+    '<span>المقيّم: <b>' + (m.appraiser ? esc(m.appraiser) : '—') + '</b></span>' +
+    (S.name ? '<span>اسم التقييم: <b>' + esc(S.name) + '</b></span>' : '') +
+    '</div>');
+  o.push('</div>');
+
+  o.push('<div class="rp-hero">' +
+    '<div class="lbl">القيمة السوقية للعقار</div>' +
+    '<div class="big">' + money(R.market) + ' <span>ريال سعودي</span></div>' +
+    '<div class="rng"><span>أقل سعر (‎−15%)<b>' + money0(R.low) + '</b></span>' +
+    '<span>سعر المتر المرجّح<b>' + money(R.ppm2) + '</b></span>' +
+    '<span>أعلى سعر (‎+15%)<b>' + money0(R.high) + '</b></span></div></div>');
+
+  o.push('<h2>١ · العقارات المقارنة والتسويات</h2>');
+  o.push('<table class="rp-tbl"><thead><tr>' +
+    '<th>المقارن</th><th>العملية</th><th>المساحة م²</th><th>التاريخ</th>' +
+    '<th>سعر المتر</th><th>التسويات</th><th>بعد التسويات</th><th>الوزن</th><th>المساهمة</th>' +
+    '</tr></thead><tbody>');
+  S.comps.forEach(function(c, i){
     var rc = R.comps[i];
-    h.push('<tr><td>'+(c.name||'')+'</td><td>'+(c.op||'')+'</td><td>'+money0(num(c.area))+'</td><td>'+greg(c.date)+
-      (hijri(c.date) ? '<br><span style="font-size:9pt;color:#555">'+hijri(c.date)+'</span>' : '')+
-      '</td><td>'+money2s(num(c.price))+'</td><td>'+pct(rc.finPct+rc.propPct)+'</td><td>'+money(rc.pAdj)+
-      '</td><td>'+num(c.weight)+'%</td><td>'+money(rc.contrib)+'</td></tr>');
+    var tot = rc.finPct + rc.propPct;
+    o.push('<tr>' +
+      '<td class="nm">'+esc(c.name||('مقارن '+(i+1)))+'</td>' +
+      '<td>'+esc(c.op||'—')+'</td>' +
+      '<td>'+money0(num(c.area))+'</td>' +
+      '<td class="dt">'+esc(dShort(c.date))+(hShort(c.date)?' <i>'+esc(hShort(c.date))+'</i>':'')+'</td>' +
+      '<td>'+money(num(c.price))+'</td>' +
+      '<td class="'+(tot>0?'pos':(tot<0?'neg':''))+'">'+pct(tot)+'</td>' +
+      '<td><b>'+money(rc.pAdj)+'</b></td>' +
+      '<td>'+num(c.weight)+'%</td>' +
+      '<td>'+money(rc.contrib)+'</td></tr>');
   });
-  h.push('</table>');
+  o.push('<tr class="sum"><td colspan="6">سعر المتر المرجّح</td><td colspan="3">'+money(R.ppm2)+' ريال/م²</td></tr>');
+  o.push('</tbody></table>');
 
-  h.push('<h3>٢. قيمة الأرض</h3><table>');
-  h.push(row('سعر المتر المرجّح', money(R.ppm2) + ' ر.س/م²'));
-  h.push(row('مساحة الأرض', money0(num(S.subject.area)) + ' م²'));
-  h.push(row('<b>قيمة الأرض</b>', '<b>' + money(R.land) + '</b>'));
-  h.push('</table>');
+  o.push('<div class="rp-two">');
+  o.push('<div><h2>٢ · قيمة الأرض</h2><table class="rp-kv">');
+  o.push(rpRow('سعر المتر المرجّح', money(R.ppm2)+' ر.س'));
+  o.push(rpRow('مساحة الأرض', money0(num(S.subject.area))+' م²'));
+  o.push(rpRow('قيمة الأرض', money(R.land), true));
+  o.push('</table></div>');
+  o.push('<div><h2>٣ · المباني والتكلفة</h2><table class="rp-kv">');
+  o.push(rpRow('المباني ('+money0(num(S.cost.bArea))+' م² × '+money0(num(S.cost.bPrice))+')', money(R.bVal)));
+  o.push(rpRow('الإهلاك ('+num(S.cost.effAge)+'÷'+num(S.cost.useLife)+' = '+(Math.round(R.depRatio*1000)/10)+'%)', '−'+money(R.dep)));
+  o.push(rpRow('المباني بعد الإهلاك', money(R.bAfter), true));
+  o.push(rpRow('العمارة العظم ('+money0(num(S.cost.sArea))+' م²)', money(R.sVal)));
+  o.push(rpRow('الأسوار ('+money0(num(S.cost.fLen))+' م.ط)' + (S.cost.includeFence?'':' — غير مضافة'), money(R.fVal)));
+  o.push('</table></div>');
+  o.push('</div>');
 
-  h.push('<h3>٣. المباني والتكلفة</h3><table>');
-  h.push(row('إجمالي قيمة المباني (' + money0(num(S.cost.bArea)) + ' م² × ' + money0(num(S.cost.bPrice)) + ')', money(R.bVal)));
-  h.push(row('نسبة الإهلاك (العمر الفعال ' + num(S.cost.effAge) + ' ÷ الافتراضي ' + num(S.cost.useLife) + ')', (Math.round(R.depRatio*10000)/100) + '%'));
-  h.push(row('الإهلاك', '−' + money(R.dep)));
-  h.push(row('<b>المباني بعد الإهلاك</b>', '<b>' + money(R.bAfter) + '</b>'));
-  h.push(row('العمارة العظم', money(R.sVal)));
-  h.push(row('الأسوار' + (S.cost.includeFence ? '' : ' (غير مضافة للمجموع)'), money(R.fVal)));
-  h.push('</table>');
+  o.push('<table class="rp-final"><tr>' +
+    '<td>قيمة الأرض<b>'+money(R.land)+'</b></td>' +
+    '<td>المباني بعد الإهلاك<b>'+money(R.bAfter)+'</b></td>' +
+    '<td>العمارة العظم<b>'+money(R.sVal)+'</b></td>' +
+    (S.cost.includeFence ? '<td>الأسوار<b>'+money(R.fVal)+'</b></td>' : '') +
+    '<td class="tot">القيمة السوقية<b>'+money(R.market)+'</b></td>' +
+    '</tr></table>');
 
-  h.push('<h3>٤. القيمة السوقية</h3><table>');
-  h.push(row('<b>القيمة السوقية</b>', '<b>' + money(R.market) + ' ريال سعودي</b>'));
-  h.push(row('أعلى سعر (+15%)', money(R.high)));
-  h.push(row('أقل سعر (−15%)', money(R.low)));
-  h.push('</table>');
-  return h.join("");
+  o.push('<div class="rp-sign"><div>اسم المقيّم: '+(m.appraiser?esc(m.appraiser):'ــــــــــــــــ')+'</div>' +
+    '<div>التوقيع: ــــــــــــــــ</div><div>الختم</div></div>');
+  o.push('<div class="rp-foot">صفحة ١ من ٢ &nbsp;·&nbsp; رقم التقييم ' + refNo +
+    ' &nbsp;·&nbsp; التقرير مبني على طريقة البيوع المقارنة وطريقة التكلفة.</div>');
+  o.push('</section>');
+
+  var c1 = document.getElementById('chartComps');
+  var c2 = document.getElementById('chartCompo');
+  var lst = document.getElementById('compoList');
+
+  o.push('<section class="pg">');
+  o.push('<div class="rp-head">' +
+    '<div><h1>الرسوم البيانية</h1><div class="sub">' +
+    (S.name ? esc(S.name) + ' &nbsp;·&nbsp; ' : '') + 'القيمة السوقية ' + money(R.market) + ' ر.س</div></div>' +
+    '<div class="rp-ref"><span>رقم التقييم</span><b>' + refNo + '</b></div>' +
+    '</div><div class="rp-rule"></div>');
+
+  o.push('<h2>أسعار المقارنات قبل التسوية وبعدها</h2>');
+  o.push('<div class="rp-note">كلما تقاربت أعمدة «بعد التسوية» كان الاستدلال أقوى. الخط المتقطّع هو السعر المرجّح النهائي ('+money(R.ppm2)+' ريال/م²).</div>');
+  o.push('<div class="rp-chart">' + (c1 ? c1.outerHTML : '') + '</div>');
+  o.push('<div class="rp-legend"><span><i style="background:'+C_BEFORE+'"></i>قبل التسوية</span>' +
+    '<span><i style="background:'+C_AFTER+'"></i>بعد التسوية</span></div>');
+
+  o.push('<h2>تكوين القيمة السوقية</h2>');
+  o.push('<div class="rp-note">نسبة مساهمة كل عنصر في القيمة النهائية.</div>');
+  o.push('<div class="rp-chart">' + (c2 ? c2.outerHTML : '') + '</div>');
+  if(lst) o.push('<div class="rp-compo">' + lst.innerHTML + '</div>');
+
+  o.push('<div class="rp-foot">صفحة ٢ من ٢ &nbsp;·&nbsp; رقم التقييم ' + refNo +
+    ' &nbsp;·&nbsp; الرسوم مولّدة من بيانات هذا التقييم.</div>');
+  o.push('</section>');
+
+  return o.join('');
 }
-function row(a,b){ return '<tr><td>'+a+'</td><td style="text-align:left">'+b+'</td></tr>'; }
+
+function row(a,b){ return '<tr><th>'+a+'</th><td>'+b+'</td></tr>'; }
 function money2s(n){ return money(n); }
 
 document.getElementById("btnPrint").addEventListener("click", function(){
