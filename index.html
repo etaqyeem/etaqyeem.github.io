@@ -2075,8 +2075,11 @@ function renderUsers(list){
           (u.role === "pending" ? '<span class="pendingdot"></span>' : '') + '</div>' +
           '<div class="ph">' + esc(u.email || "") + (isMe ? " · أنت" : "") + '</div></td>' +
         '<td><select data-uid="'+u.id+'" class="roleSel"'+(isMe?" disabled":"")+'>'+opts+'</select></td>' +
-        '<td><div class="acts">' + (isMe ? '' :
-          '<button class="btn ghost" data-ok="'+u.id+'">اعتماد كمُدخِل</button>') + '</div></td>' +
+        '<td><div class="acts">' + (isMe ? '<span style="color:var(--faint);font-size:11px">حسابك</span>' :
+          (u.role === 'pending' ? '<button class="btn ghost" data-ok="'+u.id+'">اعتماد</button>' : '') +
+          '<button class="btn ghost" data-pause="'+u.id+'" data-cur="'+u.role+'">' +
+            (u.role === 'blocked' ? 'إعادة التفعيل' : 'إيقاف مؤقت') + '</button>' +
+          '<button class="btn ghost danger" data-del="'+u.id+'">حذف</button>') + '</div></td>' +
       '</tr>'
     );
   });
@@ -2091,6 +2094,25 @@ function renderUsers(list){
   });
   Array.prototype.forEach.call(tbl.querySelectorAll("[data-ok]"), function(b){
     b.addEventListener("click", function(){ setRole(b.getAttribute("data-ok"), "entry"); });
+  });
+  Array.prototype.forEach.call(tbl.querySelectorAll("[data-pause]"), function(b){
+    b.addEventListener("click", function(){
+      var cur = b.getAttribute("data-cur");
+      setRole(b.getAttribute("data-pause"), cur === "blocked" ? "entry" : "blocked");
+    });
+  });
+  Array.prototype.forEach.call(tbl.querySelectorAll("[data-del]"), function(b){
+    b.addEventListener("click", function(){
+      if(!b.getAttribute("data-c")){
+        b.setAttribute("data-c","1"); b.textContent = "تأكيد الحذف";
+        setTimeout(function(){ b.removeAttribute("data-c"); b.textContent = "حذف"; }, 4000);
+        return;
+      }
+      SB.from("profiles").delete().eq("id", b.getAttribute("data-del")).then(function(r){
+        if(r.error){ alertless("تعذّر الحذف — تحقق من صلاحياتك"); return; }
+        loadUsers();
+      });
+    });
   });
 }
 function setRole(uid, role){
