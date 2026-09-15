@@ -1784,7 +1784,7 @@ var ROLES = {
   pending:      {label:"بانتظار الاعتماد", enter:false, exp:false, adm:false},
   blocked:      {label:"موقوف",            enter:false, exp:false, adm:false}
 };
-var ME = null, SB = null, CFGX = (window.APP_CONFIG || {});
+var ME = null, SB = null, RECOVERY = false, CFGX = (window.APP_CONFIG || {});
 
 function gateShow(html, wire){
   document.getElementById("gateBody").innerHTML = html;
@@ -1861,9 +1861,13 @@ function viewLogin(){
       document.getElementById("li_fp").addEventListener("click", function(){
         var m = val("li_mail");
         if(!m) return gmsg("اكتب بريدك أولًا ثم اضغط «نسيت كلمة المرور».");
-        SB.auth.resetPasswordForEmail(m, {redirectTo: location.href}).then(function(){
-          gmsg("أُرسل رابط إعادة التعيين إلى بريدك.", "ok");
-        });
+        var btnFp = this; btnFp.disabled = true;
+        SB.auth.resetPasswordForEmail(m, {redirectTo: location.origin + location.pathname})
+          .then(function(r){
+            btnFp.disabled = false;
+            if(r && r.error) return gmsg(errAr(r.error));
+            gmsg("أُرسل رابط إعادة التعيين إلى <b>" + esc(m) + "</b>. افتح الرابط من نفس الجهاز، وتحقق من مجلد الرسائل غير المرغوبة إن لم تجده.", "ok");
+          });
       });
     }
   );
@@ -1906,6 +1910,44 @@ function viewRegister(){
           if(r.error) return gmsg(errAr(r.error));
           if(r.data.session) onSession(r.data.session);
           else gmsg("أُنشئ الحساب. افتح بريدك وأكّد الرسالة، ثم سجّل الدخول وانتظر اعتماد المدير.", "ok");
+        });
+      });
+    }
+  );
+}
+
+function isRecoveryLink(){
+  var h = String(location.hash || '') + String(location.search || '');
+  return h.indexOf('type=recovery') !== -1;
+}
+
+function viewNewPassword(){
+  RECOVERY = true;
+  gateShow(
+    '<div class="gate-title">تعيين كلمة مرور جديدة</div>' +
+    '<div class="msg wait">فتحتَ رابط استعادة كلمة المرور. اكتب كلمة مرور جديدة الآن لتفعيل حسابك.</div>' +
+    gf("كلمة المرور الجديدة","np_pw","password","٦ خانات فأكثر") +
+    gf("تأكيد كلمة المرور","np_pw2","password") +
+    '<button class="btn primary" id="np_go" style="padding:9px">حفظ كلمة المرور</button>' +
+    '<div class="gate-links"><button class="linkbtn" id="np_back">إلغاء والعودة لتسجيل الدخول</button></div>' +
+    '<div id="gmsg"></div>',
+    function(){
+      document.getElementById("np_back").addEventListener("click", function(){
+        RECOVERY = false;
+        try{ history.replaceState(null, "", location.pathname); }catch(e){}
+        SB.auth.signOut().then(viewLogin);
+      });
+      document.getElementById("np_go").addEventListener("click", function(){
+        var a = val("np_pw"), b = val("np_pw2");
+        if(a.length < 6) return gmsg("كلمة المرور ٦ خانات على الأقل.");
+        if(a !== b)      return gmsg("كلمتا المرور غير متطابقتين.");
+        var btn = this; btn.disabled = true; btn.textContent = "جارٍ الحفظ…";
+        SB.auth.updateUser({password: a}).then(function(r){
+          btn.disabled = false; btn.textContent = "حفظ كلمة المرور";
+          if(r.error) return gmsg(errAr(r.error));
+          RECOVERY = false;
+          try{ history.replaceState(null, "", location.pathname); }catch(e){}
+          SB.auth.getSession().then(function(x){ onSession(x.data.session); });
         });
       });
     }
@@ -2160,8 +2202,12 @@ rebuildAll();
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true,
             storageKey: "reval.auth" }
   });
-  SB.auth.onAuthStateChange(function(ev){ if(ev === "SIGNED_OUT"){ ME = null; viewLogin(); } });
-  SB.auth.getSession().then(function(r){ onSession(r.data.session); })
+  SB.auth.onAuthStateChange(function(ev){
+    if(ev === "PASSWORD_RECOVERY"){ viewNewPassword(); return; }
+    if(ev === "SIGNED_OUT"){ ME = null; RECOVERY = false; viewLogin(); }
+  });
+  if(isRecoveryLink()){ viewNewPassword(); }
+  SB.auth.getSession().then(function(r){ if(RECOVERY) return; onSession(r.data.session); })
     .catch(function(){ gateShow('<div class="msg err">تعذّر الاتصال بالخادم.</div>'); });
 })();
 
