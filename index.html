@@ -1880,6 +1880,20 @@ function enterApp(){
   if(R.adm) loadUsers();
   renderFiles();
   render();
+
+  /* رابط مختصر للوحة الإدارة: ‎#admin */
+  if(location.hash === "#admin"){
+    setTimeout(function(){
+      var p = document.getElementById("adminPanel");
+      if(R.adm && p){
+        p.scrollIntoView({behavior:"smooth", block:"start"});
+        p.style.outline = "3px solid var(--accent)";
+        setTimeout(function(){ p.style.outline = ""; }, 2500);
+      }else{
+        alertless("لوحة الإدارة متاحة لحساب المدير فقط");
+      }
+    }, 500);
+  }
 }
 
 /* ---------- التقييمات ---------- */
