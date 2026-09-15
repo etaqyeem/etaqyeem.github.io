@@ -10,17 +10,12 @@
 
 ## التشغيل — أربع خطوات
 
-### ١. حساب GitHub والمستودع
+### ١. المستودع والنشر — مكتمل ✅
 
-1. افتح [github.com/signup](https://github.com/signup).
-2. اسم المستخدم: **`etaqyeem`** (متاح) — أو `altaqyeem` أو `taqyeemi`.
-3. بعد تأكيد البريد، افتح [github.com/new](https://github.com/new).
-4. اسم المستودع: **`etaqyeem.github.io`** بالضبط — نفس اسم المستخدم + `.github.io`.
-5. اختر **Public** ثم **Create repository**.
-6. **Add file → Upload files** → اسحب كل ملفات هذا المجلد → **Commit changes**.
+المنظمة `etaqyeem` والمستودع `etaqyeem.github.io` منشأان، والملفات مرفوعة، وGitHub Pages يعمل.
+الرابط المباشر: **https://etaqyeem.github.io**
 
-> هذا النوع من المستودعات ينشر نفسه تلقائيًا، فلا تحتاج تفعيل Pages يدويًا.
-> بعد دقيقة إلى دقيقتين يفتح الرابط `https://etaqyeem.github.io`.
+لتحديث أي ملف لاحقًا: **Add file → Upload files** ثم **Commit changes** — ويُنشر خلال دقيقتين.
 
 ### ٢. قاعدة البيانات (Supabase)
 
@@ -96,7 +91,7 @@
 | `supabase-setup.sql` | إنشاء الجداول وسياسات الحماية ومخزن المرفقات |
 | `manifest.webmanifest` | تعريف التطبيق ليُثبَّت على الجوال |
 | `sw.js` | تشغيل الواجهة بسرعة وبدون إنترنت |
-| `icon-192.png` / `icon-512.png` | أيقونة التطبيق |
+| `icon.svg` | أيقونة التطبيق |
 
 ---
 
