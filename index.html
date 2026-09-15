@@ -908,7 +908,8 @@ function blankComp(name, w){
 function blankState(appraiser){
   return {
     meta:{formNo:"", deed:"", district:"", city:"", ptype:"أرض ومبانٍ",
-          vdate:new Date().toISOString().slice(0,10), appraiser:appraiser || ""},
+          vdate:new Date().toISOString().slice(0,10),
+          appraiser:appraiser || (ME && ME.name) || ""},
     subject:{area:"", loc:1, streets:"", access:1, topoText:"مستوية", shapeText:"منتظمة"},
     comps:[blankComp("المقارن ١",40), blankComp("المقارن ٢",30), blankComp("المقارن ٣",30)],
     cost:{bArea:"", bPrice:"", fLen:"", fPrice:"", sArea:"", sPrice:"",
@@ -1845,6 +1846,13 @@ function viewLogin(){
     '</div>' +
     '<div id="gmsg"></div>',
     function(){
+      try{
+        var last = localStorage.getItem("reval.lastEmail");
+        if(last){
+          document.getElementById("li_mail").value = last;
+          setTimeout(function(){ document.getElementById("li_pw").focus(); }, 120);
+        }
+      }catch(e){}
       document.getElementById("li_go").addEventListener("click", doLogin);
       document.getElementById("li_pw").addEventListener("keydown", function(e){ if(e.key === "Enter") doLogin(); });
       document.getElementById("li_reg").addEventListener("click", viewRegister);
@@ -1866,6 +1874,7 @@ function doLogin(){
   SB.auth.signInWithPassword({email:mail, password:pw}).then(function(r){
     btn.disabled = false; btn.textContent = "دخول";
     if(r.error) return gmsg(errAr(r.error));
+    try{ localStorage.setItem("reval.lastEmail", mail); }catch(e){}
     onSession(r.data.session);
   });
 }
@@ -1974,6 +1983,12 @@ function enterApp(){
   ASSETS = true;
   alertless("متزامن");
 
+  if(!S.meta.appraiser && ME.name){
+    S.meta.appraiser = ME.name;
+    var af = document.getElementById("m_appraiser");
+    if(af) af.value = ME.name;
+    persist();
+  }
   loadValuations();
   if(R.adm) loadUsers();
   renderFiles();
@@ -2139,7 +2154,10 @@ rebuildAll();
     gateShow('<div class="msg err">تعذّر تحميل مكتبة Supabase — تحقق من اتصال الإنترنت ثم حدّث الصفحة.</div>');
     return;
   }
-  SB = window.supabase.createClient(CFGX.url, CFGX.anonKey);
+  SB = window.supabase.createClient(CFGX.url, CFGX.anonKey, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true,
+            storageKey: "reval.auth" }
+  });
   SB.auth.onAuthStateChange(function(ev){ if(ev === "SIGNED_OUT"){ ME = null; viewLogin(); } });
   SB.auth.getSession().then(function(r){ onSession(r.data.session); })
     .catch(function(){ gateShow('<div class="msg err">تعذّر الاتصال بالخادم.</div>'); });
