@@ -13,6 +13,6 @@
    ===================================================================== */
 
 window.APP_CONFIG = {
-  url:     "YOUR_SUPABASE_URL",
-  anonKey: "YOUR_SUPABASE_ANON_KEY"
+  url:     "https://cbnlwwwggbqgrjzllxje.supabase.co",
+  anonKey: "sb_publishable_6fMC5NEftxTK8d8ui03lZw_uMkS06ga"
 };
