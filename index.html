@@ -1456,6 +1456,7 @@ function row(a,b){ return '<tr><th>'+a+'</th><td>'+b+'</td></tr>'; }
 function money2s(n){ return money(n); }
 
 document.getElementById("btnPrint").addEventListener("click", function(){
+  ensureFormNo();
   document.getElementById("report").innerHTML = buildReport();
   try{ window.print(); }
   catch(e){ alertless("تعذّرت الطباعة من داخل الصفحة — افتح التطبيق في نافذة مستقلة ثم اطبع."); }
