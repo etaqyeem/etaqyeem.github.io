@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#B87D1F">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="لوحة تحكم نظام التقييم الإلكتروني — للمدير فقط.">
+<title>لوحة التحكم — التقييم الإلكتروني</title>
+<link rel="icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#F2F0EA; --surface:#FBFAF7; --surface-2:#F5F3ED;
+  --ink:#2C2823; --muted:#6B6459; --faint:#8E8679;
+  --line:#E4DFD3; --line-strong:#CEC6B5;
+  --accent:#B87D1F; --accent-ink:#835613; --accent-soft:#F7EDD9;
+  --gold:#E9B525;
+  --pos:#2C7355; --neg:#A2493C; --amber:#835613; --amber-soft:#F7EDD9;
+  --shadow:0 1px 2px rgba(44,40,35,.04), 0 10px 24px -20px rgba(44,40,35,.32);
+  --r:10px;
+  --ui:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;
+  --display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--ui); font-size:14px; line-height:1.5; direction:rtl; text-align:right;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3{margin:0; font-family:var(--display); font-weight:500}
+button{font:inherit; color:inherit; cursor:pointer}
+input,select,textarea{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+
+.topbar{
+  position:sticky; top:0; z-index:30;
+  background:color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topbar-in{
+  max-width:1220px; margin:0 auto; padding:10px 16px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.brand{display:flex; align-items:center; gap:9px; min-width:0}
+.mark{
+  width:34px; height:34px; border-radius:9px; flex:none;
+  background:var(--accent); color:#FBFAF7; display:grid; place-items:center;
+  font-family:var(--display); font-weight:600; font-size:15px;
+}
+.brand .t{font-family:var(--display); font-size:15px; font-weight:600; line-height:1.2}
+.brand .s{font-size:11px; color:var(--muted)}
+.spacer{margin-inline-start:auto}
+.btn{
+  border:1px solid var(--line-strong); background:var(--surface);
+  padding:6px 12px; border-radius:8px; font-size:12.5px; font-weight:500;
+  transition:border-color .15s, background .15s; text-decoration:none; color:inherit;
+  display:inline-flex; align-items:center; gap:5px;
+}
+.btn:hover{border-color:var(--accent); background:var(--surface-2)}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:#FBFAF7}
+.btn.ghost{border-color:transparent; background:transparent; color:var(--muted)}
+.btn.ghost:hover{background:var(--surface-2); color:var(--ink)}
+.btn.danger{color:var(--neg)}
+.btn.danger:hover{border-color:var(--neg)}
+.btn.tiny{padding:3px 8px; font-size:11px}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.userchip{
+  display:flex; align-items:center; gap:7px; font-size:12px;
+  background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:3px 11px;
+}
+.rolepill{font-size:10px; background:var(--accent-soft); color:var(--accent-ink); border-radius:999px; padding:1px 7px; font-weight:600}
+
+.wrap{max-width:1220px; margin:0 auto; padding:16px 16px 40px}
+.panel{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; margin-bottom:16px;
+}
+.panel > header{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 14px; border-bottom:1px solid var(--line); background:var(--surface-2);
+  border-bottom-color:color-mix(in srgb, var(--accent) 25%, var(--line));
+}
+.panel > header h2{font-size:14.5px}
+.hint{font-size:11.5px; color:var(--muted); margin-inline-start:auto}
+.subhead{
+  font-size:12px; font-weight:700; margin:0; padding:12px 14px 0;
+  display:flex; align-items:center; gap:9px;
+}
+.subhead::after{content:""; flex:1; height:2px; border-radius:2px;
+  background:color-mix(in srgb, var(--accent) 28%, var(--line))}
+
+.field{display:flex; flex-direction:column; gap:3px; min-width:0}
+.field > label{font-size:11.5px; color:var(--muted); font-weight:600}
+.ctl{display:flex; align-items:center; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.ctl:focus-within{border-color:var(--accent); background:var(--surface)}
+.ctl input{flex:1 1 auto; min-width:0; width:100%; background:transparent; border:0; padding:7px 9px; font-size:13.5px; font-variant-numeric:tabular-nums}
+.ctl input:focus{outline:none}
+.ctl .unit{flex:none; padding:0 9px; font-size:11px; color:var(--faint); border-inline-start:1px solid var(--line); align-self:stretch; display:grid; place-items:center; background:var(--surface)}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+
+.kpis{display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); padding:12px 14px}
+.kpi{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px}
+.kpi .k{font-size:10.5px; color:var(--muted); font-weight:600}
+.kpi .v{font-family:var(--display); font-size:20px; font-weight:600; color:var(--accent-ink); font-variant-numeric:tabular-nums; line-height:1.3}
+.kpi .s{font-size:10.5px; color:var(--faint)}
+.kpi.alert{background:var(--amber-soft); border-color:color-mix(in srgb,var(--amber) 32%,var(--line))}
+.kpi.alert .v{color:var(--amber)}
+
+.setgrid{display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); padding:10px 14px 12px}
+.setrow{display:flex; gap:9px; align-items:flex-start; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r); padding:9px 11px}
+.setrow input[type=checkbox]{margin-top:3px; width:16px; height:16px; accent-color:var(--accent); flex:none}
+.setrow label{font-size:12px; cursor:pointer}
+.setrow label b{display:block; font-size:12.5px; font-weight:600}
+.setrow label span{color:var(--muted); font-size:11px}
+.setbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:0 14px 14px}
+.ta{width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font:inherit; font-size:12.5px; min-height:48px; resize:vertical}
+.ta:focus{outline:none; border-color:var(--accent); background:var(--surface)}
+
+.users-tbl{width:100%; border-collapse:collapse; font-size:12.5px}
+.users-tbl th{text-align:right; font-size:10.5px; letter-spacing:.05em; color:var(--faint); font-weight:600; padding:8px 14px; background:var(--surface-2); border-bottom:1px solid var(--line)}
+.users-tbl td{padding:9px 14px; border-bottom:1px solid var(--line); vertical-align:middle}
+.users-tbl tr:last-child td{border-bottom:0}
+.users-tbl .nm{font-weight:600}
+.users-tbl .ph{font-size:11px; color:var(--muted)}
+.users-tbl select{background:var(--surface-2); border:1px solid var(--line); border-radius:7px; padding:4px 7px; font-size:11.5px; max-width:135px}
+.users-tbl input.lim{width:64px; background:var(--surface-2); border:1px solid var(--line); border-radius:7px; padding:4px 5px; font-size:12px; text-align:center; font-variant-numeric:tabular-nums}
+.users-tbl .cnt{font-variant-numeric:tabular-nums; font-weight:600; font-size:13px}
+.users-tbl .bar{height:4px; border-radius:3px; background:var(--line); overflow:hidden; margin-top:4px; max-width:78px}
+.users-tbl .bar i{display:block; height:100%; background:var(--accent); border-radius:3px}
+.users-tbl .bar.full i{background:var(--neg)}
+.users-tbl .miniwarn{font-size:10px; color:var(--neg); font-weight:600}
+.users-tbl .acts{display:flex; gap:5px; flex-wrap:wrap; align-items:center}
+.users-tbl .acts .btn.ghost{border-color:var(--line); background:var(--surface-2); color:var(--ink)}
+.users-tbl .acts .btn.ghost:hover{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-ink)}
+.chip{font-size:10px; font-weight:600; border-radius:999px; padding:2px 8px; background:var(--amber-soft); color:var(--amber)}
+.pendingdot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--amber); margin-inline-start:5px}
+.pwnote{display:flex; gap:9px; align-items:flex-start; padding:11px 14px; border-top:1px solid var(--line); background:var(--surface-2); font-size:11.5px; color:var(--muted)}
+.pwnote b{display:block; color:var(--ink); font-size:12px}
+
+/* gate */
+.gate{min-height:100dvh; display:grid; place-items:center; padding:24px 16px}
+.gate-card{
+  width:100%; max-width:378px; background:var(--surface); border:1px solid var(--line);
+  border-radius:14px; box-shadow:var(--shadow); padding:22px;
+}
+.gate-brand{display:flex; align-items:center; gap:10px; margin-bottom:16px}
+.gate-title{font-family:var(--display); font-size:17px; font-weight:600; margin-bottom:12px}
+.gf{display:flex; flex-direction:column; gap:3px; margin-bottom:11px}
+.gf label{font-size:11.5px; color:var(--muted); font-weight:600}
+.msg{border-radius:9px; padding:9px 11px; font-size:12px; margin-bottom:12px}
+.msg.err{background:#F8EAE7; color:var(--neg)}
+.msg.ok{background:#E7F1EC; color:var(--pos)}
+.msg.wait{background:var(--amber-soft); color:var(--amber)}
+.linkbtn{background:none; border:0; color:var(--accent-ink); font-size:12px; text-decoration:underline; padding:4px}
+.gate-links{display:flex; justify-content:space-between; margin-top:10px}
+.eye{flex:none; width:38px; align-self:stretch; border:0; background:var(--surface); color:var(--faint); display:grid; place-items:center; border-inline-start:1px solid var(--line)}
+.eye:hover{color:var(--accent-ink); background:var(--accent-soft)}
+.eye svg{width:17px; height:17px}
+.foot{max-width:1220px; margin:0 auto; padding:0 16px 30px; font-size:11px; color:var(--faint)}
+@media (max-width:620px){
+  .users-tbl th:nth-child(2), .users-tbl td:nth-child(2){display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-brand">
+      <div class="mark">ت</div>
+      <div><div class="brand-t" style="font-family:var(--display);font-weight:600">لوحة التحكم</div>
+      <div style="font-size:11px;color:var(--muted)">نظام التقييم الإلكتروني</div></div>
+    </div>
+    <div id="gateBody"></div>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <div class="topbar"><div class="topbar-in">
+    <div class="brand">
+      <div class="mark">ت</div>
+      <div><div class="t">لوحة التحكم</div><div class="s">نظام التقييم الإلكتروني</div></div>
+    </div>
+    <div class="spacer"></div>
+    <span class="userchip" id="userChip"><b id="ucName"></b><span class="rolepill">مدير</span></span>
+    <a class="btn" href="index.html">↩ التطبيق</a>
+    <button class="btn ghost" id="btnOut">خروج</button>
+  </div></div>
+
+  <div class="wrap">
+
+    <section class="panel">
+      <header><h2>نظرة عامة</h2><span class="hint" id="ovHint">…</span></header>
+      <div class="kpis" id="kpis"></div>
+    </section>
+
+    <section class="panel">
+      <header><h2>التحكم بالتطبيق</h2><span class="hint">يسري على جميع المستخدمين فورًا</span></header>
+      <div class="setgrid">
+        <div class="setrow">
+          <input type="checkbox" id="st_maint">
+          <label for="st_maint"><b>وضع الصيانة</b><span>يُغلق التطبيق على الجميع عدا المدير</span></label>
+        </div>
+        <div class="setrow">
+          <input type="checkbox" id="st_signup">
+          <label for="st_signup"><b>السماح بطلبات حساب جديد</b><span>إغلاقه يوقف التسجيل تمامًا</span></label>
+        </div>
+        <div class="setrow">
+          <input type="checkbox" id="st_auto">
+          <label for="st_auto"><b>اعتماد تلقائي للحساب الجديد</b><span>يدخل بصلاحية «إدخال» بلا انتظار</span></label>
+        </div>
+        <div class="setrow">
+          <input type="checkbox" id="st_export">
+          <label for="st_export"><b>تمكين تصدير التقارير</b><span>إغلاقه يخفي زر التصدير عن الجميع</span></label>
+        </div>
+      </div>
+      <div class="setgrid" style="padding-top:0">
+        <div class="field">
+          <label for="st_deflim">الحد الافتراضي لتقارير المستخدم الجديد</label>
+          <div class="ctl"><input id="st_deflim" type="number" min="0" step="1"><span class="unit">٠ = بلا حد</span></div>
+        </div>
+        <div class="field">
+          <label for="st_maxrep">سقف عدد التقارير في النظام كله</label>
+          <div class="ctl"><input id="st_maxrep" type="number" min="0" step="1"><span class="unit">٠ = بلا حد</span></div>
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label for="st_notice">إعلان يظهر أعلى شاشة كل المستخدمين</label>
+          <textarea id="st_notice" class="ta" placeholder="اتركه فارغًا لإخفاء الإعلان"></textarea>
+        </div>
+      </div>
+      <div class="setbar">
+        <button class="btn primary" id="btnSaveSet" type="button">حفظ الإعدادات</button>
+        <button class="btn ghost" id="btnReload" type="button">تحديث البيانات</button>
+        <span class="hint" id="setState" style="margin-inline-start:0"></span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header><h2>المستخدمون · التقارير · كلمات المرور</h2><span class="hint" id="usersHint"></span></header>
+      <div style="overflow-x:auto"><table class="users-tbl" id="usersTbl"></table></div>
+      <div class="pwnote">
+        <span>⚑</span>
+        <div>
+          <b>كلمات المرور مشفّرة ولا يستطيع أحد الاطلاع عليها — ولا المدير.</b>
+          «رابط تعيين» يُرسل رسالة إلى بريد المستخدم لتعيين كلمة جديدة،
+          و«إلزام بالتغيير» يُجبره على تعيين كلمة مرور جديدة عند أول دخول.
+          عمود «الحد» = أقصى عدد تقارير لهذا المستخدم (٠ = بلا حد).
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header><h2>كلمة مرور حسابي</h2></header>
+      <div class="setgrid">
+        <div class="field">
+          <label for="ad_pw">كلمة المرور الجديدة</label>
+          <div class="ctl"><input id="ad_pw" type="password" placeholder="٦ خانات فأكثر" autocomplete="new-password"></div>
+        </div>
+        <div class="field">
+          <label for="ad_pw2">تأكيد كلمة المرور</label>
+          <div class="ctl"><input id="ad_pw2" type="password" autocomplete="new-password"></div>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn" id="btnMyPw" type="button" style="height:35px; justify-content:center">تحديث كلمة مروري</button>
+        </div>
+      </div>
+      <div class="setbar"><span class="hint" id="pwState" style="margin-inline-start:0"></span></div>
+    </section>
+
+  </div>
+  <div class="foot">لوحة تحكم نظام التقييم الإلكتروني — الدخول مقصور على حساب المدير.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+(function(){
+"use strict";
+
+var CFGX = (window.APP_CONFIG || {});
+var SB = null, ME = null;
+var USERS = [], COUNTS = {}, STATS = {total:0, month:0, week:0, sum:0};
+var SET = {
+  maintenance:false, maintenance_msg:"", allow_signup:true, auto_approve:false,
+  allow_export:true, default_limit:0, max_reports:0, notice:""
+};
+var ROLES = {
+  admin:"مدير", entry_export:"إدخال وتصدير", entry:"إدخال",
+  pending:"بانتظار الاعتماد", blocked:"موقوف"
+};
+
+var fmt0 = new Intl.NumberFormat("en-US", {maximumFractionDigits:0});
+function n0(x){ return isFinite(x) ? fmt0.format(x) : "—"; }
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function $(id){ return document.getElementById(id); }
+function val(id){ var n = $(id); return n ? n.value.trim() : ""; }
+
+/* ---------- قيمة السوق من الحالة المحفوظة (نفس معادلة التطبيق) ---------- */
+function num(v){ var x = parseFloat(v); return isFinite(x) ? x : 0; }
+function marketOf(S){
+  if(!S || !S.comps) return 0;
+  var ppm2 = 0;
+  S.comps.forEach(function(c){
+    var a = c.adj || {};
+    var fin  = (num(a.time) + num(a.fin) + num(a.market)) / 100;
+    var pFin = num(c.price) * (1 + fin);
+    var prop = (num(a.area) + num(a.loc) + num(a.streets) +
+                num(a.topo) + num(a.shape) + num(a.access)) / 100;
+    ppm2 += pFin * (1 + prop) * (num(c.weight) / 100);
+  });
+  var land = ppm2 * num(S.subject && S.subject.area);
+  var K = S.cost || {};
+  var bVal = num(K.bArea) * num(K.bPrice);
+  var sVal = num(K.sArea) * num(K.sPrice);
+  var fVal = num(K.fLen)  * num(K.fPrice);
+  var life = num(K.useLife);
+  var bAfter = bVal - (life > 0 ? num(K.effAge)/life : 0) * bVal;
+  return bAfter + land + sVal + (K.includeFence ? fVal : 0);
+}
+
+/* ---------- واجهة البوابة ---------- */
+function gateShow(html, wire){
+  $("gateBody").innerHTML = html;
+  $("gate").hidden = false;
+  $("app").hidden = true;
+  if(wire) wire();
+}
+var EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.2 12S6 5.8 12 5.8 21.8 12 21.8 12 18 18.2 12 18.2 2.2 12 2.2 12Z"/><circle cx="12" cy="12" r="2.9"/></svg>';
+function gf(label, id, type, ph){
+  var eye = (type === "password")
+    ? '<button type="button" class="eye" data-eye="'+id+'" aria-label="إظهار كلمة المرور">'+EYE+'</button>' : '';
+  return '<div class="gf"><label for="'+id+'">'+label+'</label>' +
+    '<div class="ctl"><input id="'+id+'" type="'+(type||"text")+'"'+
+    (ph ? ' placeholder="'+ph+'"' : '')+'>'+eye+'</div></div>';
+}
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest("[data-eye]");
+  if(!b) return;
+  var f = $(b.getAttribute("data-eye"));
+  if(f) f.type = (f.type === "password") ? "text" : "password";
+});
+function gmsg(txt, kind){
+  var n = $("gmsg");
+  if(n) n.innerHTML = '<div class="msg '+(kind || "err")+'">'+txt+'</div>';
+}
+function errAr(e){
+  var m = String((e && e.message) || e || "");
+  if(/Invalid login/i.test(m))        return "البريد أو كلمة المرور غير صحيحة.";
+  if(/Email not confirmed/i.test(m))  return "لم تؤكّد بريدك بعد — افتح رسالة التأكيد.";
+  if(/rate limit|too many/i.test(m))  return "محاولات كثيرة — انتظر قليلًا ثم أعد المحاولة.";
+  if(/should be at least/i.test(m))   return "كلمة المرور قصيرة جدًا.";
+  return m || "حدث خطأ غير متوقع.";
+}
+
+function viewLogin(){
+  var last = "";
+  try{ last = localStorage.getItem("reval.lastEmail") || ""; }catch(e){}
+  gateShow(
+    '<div class="gate-title">دخول المدير</div>' +
+    gf("البريد الإلكتروني","li_mail","email") +
+    gf("كلمة المرور","li_pw","password") +
+    '<button class="btn primary" id="li_go" style="width:100%; justify-content:center; padding:9px">دخول</button>' +
+    '<div class="gate-links"><button class="linkbtn" id="li_fg">نسيت كلمة المرور</button>' +
+    '<a class="linkbtn" href="index.html" style="text-decoration:underline">الذهاب للتطبيق</a></div>' +
+    '<div id="gmsg"></div>',
+    function(){
+      if(last){ $("li_mail").value = last; setTimeout(function(){ $("li_pw").focus(); }, 60); }
+      $("li_go").addEventListener("click", doLogin);
+      $("li_pw").addEventListener("keydown", function(e){ if(e.key === "Enter") doLogin.call($("li_go")); });
+      $("li_fg").addEventListener("click", function(){
+        var mail = val("li_mail");
+        if(!/.+@.+\..+/.test(mail)) return gmsg("اكتب بريدك أولًا ثم اضغط «نسيت كلمة المرور».");
+        SB.auth.resetPasswordForEmail(mail, {redirectTo: location.origin + location.pathname.replace(/admin\.html$/, "index.html")})
+          .then(function(r){
+            gmsg(r.error ? errAr(r.error) : "أُرسل رابط تعيين كلمة المرور إلى بريدك.", r.error ? "err" : "ok");
+          });
+      });
+    }
+  );
+}
+function doLogin(){
+  var mail = val("li_mail"), pw = val("li_pw");
+  if(!/.+@.+\..+/.test(mail)) return gmsg("البريد غير صحيح.");
+  if(!pw) return gmsg("اكتب كلمة المرور.");
+  var btn = this; btn.disabled = true; btn.textContent = "جارٍ الدخول…";
+  SB.auth.signInWithPassword({email:mail, password:pw}).then(function(r){
+    btn.disabled = false; btn.textContent = "دخول";
+    if(r.error) return gmsg(errAr(r.error));
+    try{ localStorage.setItem("reval.lastEmail", mail); }catch(e){}
+    onSession(r.data.session);
+  });
+}
+function viewDenied(role){
+  gateShow(
+    '<div class="gate-title">لا تملك صلاحية الدخول</div>' +
+    '<div class="msg err">لوحة التحكم مقصورة على حساب <b>المدير</b>. صلاحيتك الحالية: ' +
+      esc(ROLES[role] || role || "—") + '.</div>' +
+    '<a class="btn" href="index.html" style="width:100%; justify-content:center; padding:9px">الذهاب للتطبيق</a>' +
+    '<div class="gate-links"><button class="linkbtn" id="dn_out">تسجيل الخروج</button></div>',
+    function(){ $("dn_out").addEventListener("click", logout); }
+  );
+}
+function logout(){
+  ME = null;
+  SB.auth.signOut().then(viewLogin);
+}
+
+/* ---------- الجلسة ---------- */
+function onSession(session){
+  if(!session){ viewLogin(); return; }
+  SB.from("profiles").select("*").eq("id", session.user.id).maybeSingle().then(function(r){
+    var p = r.data || {};
+    if((p.role || "") !== "admin") return viewDenied(p.role);
+    ME = {id: session.user.id, name: p.full_name || session.user.email, email: session.user.email};
+    $("gate").hidden = true;
+    $("app").hidden = false;
+    $("ucName").textContent = ME.name;
+    loadSettings().then(function(){ fillSettingsForm(); return refreshAll(); });
+  });
+}
+
+/* ---------- الإعدادات ---------- */
+var SET_OK = false;
+function loadSettings(){
+  return SB.from("app_settings").select("*").eq("id",1).maybeSingle().then(function(r){
+    if(r.data){
+      SET_OK = true;
+      Object.keys(SET).forEach(function(k){
+        if(r.data[k] !== undefined && r.data[k] !== null) SET[k] = r.data[k];
+      });
+    }
+    return SET;
+  }).catch(function(){ return SET; });
+}
+function setState(msg, kind){
+  var n = $("setState");
+  if(!n) return;
+  n.textContent = msg || "";
+  n.style.color = kind === "err" ? "var(--neg)" : (kind === "ok" ? "var(--pos)" : "var(--muted)");
+}
+function fillSettingsForm(){
+  $("st_maint").checked  = !!SET.maintenance;
+  $("st_signup").checked = SET.allow_signup !== false;
+  $("st_auto").checked   = !!SET.auto_approve;
+  $("st_export").checked = SET.allow_export !== false;
+  $("st_deflim").value   = +SET.default_limit || 0;
+  $("st_maxrep").value   = +SET.max_reports || 0;
+  $("st_notice").value   = SET.notice || "";
+  if(!SET_OK) setState("لم تُثبَّت جداول لوحة التحكم — شغّل ملف admin-upgrade.sql في Supabase.", "err");
+}
+function saveSettings(btn){
+  var payload = {
+    id: 1,
+    maintenance:   $("st_maint").checked,
+    allow_signup:  $("st_signup").checked,
+    auto_approve:  $("st_auto").checked,
+    allow_export:  $("st_export").checked,
+    default_limit: Math.max(0, parseInt($("st_deflim").value, 10) || 0),
+    max_reports:   Math.max(0, parseInt($("st_maxrep").value, 10) || 0),
+    notice:        $("st_notice").value.trim(),
+    updated_at:    new Date().toISOString()
+  };
+  btn.disabled = true; setState("جارٍ الحفظ…");
+  SB.from("app_settings").upsert(payload).then(function(r){
+    btn.disabled = false;
+    if(r.error){ setState("تعذّر الحفظ — " + errAr(r.error), "err"); return; }
+    Object.keys(payload).forEach(function(k){ if(k !== "id") SET[k] = payload[k]; });
+    SET_OK = true;
+    renderKPIs();
+    setState("حُفظت الإعدادات وسرت على الجميع.", "ok");
+    setTimeout(function(){ setState(""); }, 4000);
+  });
+}
+
+/* ---------- الإحصاءات والمستخدمون ---------- */
+function refreshAll(){
+  $("ovHint").textContent = "جارٍ التحديث…";
+  return Promise.all([
+    SB.from("profiles").select("*").order("created_at", {ascending:true}),
+    SB.from("valuations").select("owner,updated_at,state").limit(2000)
+  ]).then(function(res){
+    if(res[0].error){ $("ovHint").textContent = "تعذّرت القراءة"; setState(errAr(res[0].error), "err"); return; }
+    USERS = res[0].data || [];
+    COUNTS = {}; STATS = {total:0, month:0, week:0, sum:0};
+    var mk = new Date().toISOString().slice(0,7);
+    var wk = new Date(Date.now() - 7*864e5).toISOString();
+    (res[1].data || []).forEach(function(v){
+      STATS.total++;
+      COUNTS[v.owner] = (COUNTS[v.owner] || 0) + 1;
+      var t = String(v.updated_at || "");
+      if(t.slice(0,7) === mk) STATS.month++;
+      if(t >= wk) STATS.week++;
+      var m = marketOf(v.state);
+      if(isFinite(m)) STATS.sum += m;
+    });
+    renderKPIs();
+    renderUsers();
+    $("ovHint").textContent = "آخر تحديث " + new Date().toLocaleTimeString("ar-SA-u-nu-latn", {hour:"2-digit", minute:"2-digit"});
+  });
+}
+function kpi(k, v, s, alert){
+  return '<div class="kpi' + (alert ? ' alert' : '') + '">' +
+    '<div class="k">'+k+'</div><div class="v">'+v+'</div><div class="s">'+(s || "&nbsp;")+'</div></div>';
+}
+function renderKPIs(){
+  var act = 0, pend = 0, blk = 0, adm = 0;
+  USERS.forEach(function(u){
+    if(u.role === "pending") pend++;
+    else if(u.role === "blocked") blk++;
+    else { act++; if(u.role === "admin") adm++; }
+  });
+  var cap = +SET.max_reports || 0;
+  $("kpis").innerHTML =
+    kpi("إجمالي التقارير", n0(STATS.total), cap ? ("السقف " + n0(cap)) : "بلا سقف", cap > 0 && STATS.total >= cap) +
+    kpi("تقارير هذا الشهر", n0(STATS.month), "آخر ٧ أيام: " + n0(STATS.week)) +
+    kpi("إجمالي القيم المقدّرة", n0(STATS.sum), "ريال سعودي") +
+    kpi("المستخدمون النشطون", n0(act), adm ? (n0(adm) + " مدير") : "&nbsp;") +
+    kpi("بانتظار الاعتماد", n0(pend), pend ? "يحتاج إجراء" : "لا طلبات", pend > 0) +
+    kpi("موقوفون", n0(blk), "إيقاف مؤقت", blk > 0) +
+    kpi("وضع التطبيق", SET.maintenance ? "صيانة" : "يعمل",
+        SET.allow_export === false ? "التصدير مُعطَّل" : "التصدير متاح", !!SET.maintenance) +
+    kpi("التسجيل", SET.allow_signup === false ? "مغلق" : (SET.auto_approve ? "تلقائي" : "بالاعتماد"),
+        "طلبات الحساب الجديد", SET.allow_signup === false);
+}
+
+function renderUsers(){
+  var tbl = $("usersTbl");
+  var rows = ['<tr><th>المستخدم</th><th>الصلاحية</th><th>التقارير</th><th>الحد</th>' +
+              '<th>كلمة المرور</th><th>إجراءات</th></tr>'];
+  var pend = 0;
+  var list = USERS.slice().sort(function(a,b){
+    if(a.role === "pending" && b.role !== "pending") return -1;
+    if(b.role === "pending" && a.role !== "pending") return 1;
+    return (COUNTS[b.id] || 0) - (COUNTS[a.id] || 0);
+  });
+  list.forEach(function(u){
+    if(u.role === "pending") pend++;
+    var isMe = (u.id === ME.id);
+    var cnt  = COUNTS[u.id] || 0;
+    var lim  = +(u.report_limit || 0);
+    var pct  = lim > 0 ? Math.min(100, Math.round(cnt / lim * 100)) : 0;
+    var full = lim > 0 && cnt >= lim;
+    var opts = ["pending","entry","entry_export","admin","blocked"].map(function(k){
+      return '<option value="'+k+'"'+(u.role===k?" selected":"")+'>'+ROLES[k]+'</option>';
+    }).join("");
+
+    rows.push('<tr>' +
+      '<td><div class="nm">' + esc(u.full_name || "—") +
+        (u.role === "pending" ? '<span class="pendingdot"></span>' : '') + '</div>' +
+        '<div class="ph">' + esc(u.email || "") + (isMe ? " · أنت" : "") + '</div></td>' +
+
+      '<td><select data-uid="'+u.id+'" class="roleSel"'+(isMe?" disabled":"")+'>'+opts+'</select></td>' +
+
+      '<td><div class="cnt">' + n0(cnt) +
+        (lim > 0 ? ' <span style="font-size:10.5px;color:var(--faint)">/ '+lim+'</span>' : '') + '</div>' +
+        (lim > 0
+          ? '<div class="bar'+(full?' full':'')+'"><i style="width:'+pct+'%"></i></div>' +
+            (full ? '<div class="miniwarn">بلغ الحد</div>' : '')
+          : '<div style="font-size:10px;color:var(--faint)">بلا حد</div>') + '</td>' +
+
+      '<td><input class="lim" type="number" min="0" step="1" value="'+lim+'" data-lim="'+u.id+'" title="٠ = بلا حد"></td>' +
+
+      '<td><div class="acts">' +
+        '<button class="btn ghost tiny" data-reset="'+u.id+'" data-mail="'+esc(u.email||"")+'">رابط تعيين</button>' +
+        (isMe ? '' : '<button class="btn ghost tiny" data-force="'+u.id+'" data-cur="'+(u.must_change_pw?1:0)+'">' +
+          (u.must_change_pw ? 'إلغاء الإلزام' : 'إلزام بالتغيير') + '</button>') +
+        (u.must_change_pw ? '<span class="chip">مطلوب تغيير</span>' : '') +
+      '</div></td>' +
+
+      '<td><div class="acts">' + (isMe ? '<span style="color:var(--faint);font-size:11px">حسابك</span>' :
+        (u.role === 'pending' ? '<button class="btn ghost tiny" data-ok="'+u.id+'">اعتماد</button>' : '') +
+        '<button class="btn ghost tiny" data-pause="'+u.id+'" data-cur="'+u.role+'">' +
+          (u.role === 'blocked' ? 'تفعيل' : 'إيقاف مؤقت') + '</button>' +
+        '<button class="btn ghost danger tiny" data-del="'+u.id+'">حذف</button>') + '</div></td>' +
+    '</tr>');
+  });
+  tbl.innerHTML = rows.join("");
+  $("usersHint").textContent = (pend ? pend + " طلب بانتظار الاعتماد · " : "") +
+    list.length + " مستخدم · " + n0(STATS.total) + " تقرير";
+
+  var q = function(sel){ return Array.prototype.slice.call(tbl.querySelectorAll(sel)); };
+
+  q(".roleSel").forEach(function(sel){
+    sel.addEventListener("change", function(){ patchUser(sel.getAttribute("data-uid"), {role:sel.value}); });
+  });
+  q("[data-ok]").forEach(function(b){
+    b.addEventListener("click", function(){ patchUser(b.getAttribute("data-ok"), {role:"entry"}); });
+  });
+  q("[data-pause]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var cur = b.getAttribute("data-cur");
+      patchUser(b.getAttribute("data-pause"), {role: cur === "blocked" ? "entry" : "blocked"});
+    });
+  });
+  q("[data-lim]").forEach(function(inp){
+    inp.addEventListener("change", function(){
+      var v = Math.max(0, parseInt(inp.value, 10) || 0);
+      inp.value = v;
+      patchUser(inp.getAttribute("data-lim"), {report_limit: v});
+    });
+  });
+  q("[data-force]").forEach(function(b){
+    b.addEventListener("click", function(){
+      patchUser(b.getAttribute("data-force"), {must_change_pw: b.getAttribute("data-cur") !== "1"});
+    });
+  });
+  q("[data-reset]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var mail = b.getAttribute("data-mail");
+      if(!mail){ setState("لا يوجد بريد مسجّل لهذا المستخدم.", "err"); return; }
+      if(!b.getAttribute("data-c")){
+        b.setAttribute("data-c","1"); b.textContent = "تأكيد الإرسال";
+        setTimeout(function(){ b.removeAttribute("data-c"); b.textContent = "رابط تعيين"; }, 4000);
+        return;
+      }
+      b.removeAttribute("data-c"); b.textContent = "جارٍ…"; b.disabled = true;
+      SB.auth.resetPasswordForEmail(mail, {redirectTo: location.origin + location.pathname.replace(/admin\.html$/, "index.html")})
+        .then(function(r){
+          b.disabled = false; b.textContent = "رابط تعيين";
+          setState(r.error ? ("تعذّر الإرسال: " + errAr(r.error))
+                           : ("أُرسل رابط تعيين كلمة المرور إلى " + mail), r.error ? "err" : "ok");
+        });
+    });
+  });
+  q("[data-del]").forEach(function(b){
+    b.addEventListener("click", function(){
+      if(!b.getAttribute("data-c")){
+        b.setAttribute("data-c","1"); b.textContent = "تأكيد الحذف";
+        setTimeout(function(){ b.removeAttribute("data-c"); b.textContent = "حذف"; }, 4000);
+        return;
+      }
+      SB.from("profiles").delete().eq("id", b.getAttribute("data-del")).then(function(r){
+        if(r.error){ setState("تعذّر الحذف — " + errAr(r.error), "err"); return; }
+        refreshAll();
+      });
+    });
+  });
+}
+
+function patchUser(uid, patch){
+  SB.from("profiles").update(patch).eq("id", uid).then(function(r){
+    if(r.error){ setState("تعذّر التعديل — " + errAr(r.error), "err"); return; }
+    setState("تم التعديل.", "ok");
+    setTimeout(function(){ setState(""); }, 2500);
+    refreshAll();
+  });
+}
+
+/* ---------- الإقلاع ---------- */
+$("btnOut").addEventListener("click", logout);
+$("btnSaveSet").addEventListener("click", function(){ saveSettings(this); });
+$("btnReload").addEventListener("click", function(){
+  loadSettings().then(function(){ fillSettingsForm(); return refreshAll(); });
+});
+$("btnMyPw").addEventListener("click", function(){
+  var a = val("ad_pw"), b = val("ad_pw2");
+  var st = $("pwState");
+  function say(m, k){ st.textContent = m; st.style.color = k === "err" ? "var(--neg)" : "var(--pos)"; }
+  if(a.length < 6) return say("كلمة المرور ٦ خانات على الأقل.", "err");
+  if(a !== b)      return say("كلمتا المرور غير متطابقتين.", "err");
+  var btn = this; btn.disabled = true; btn.textContent = "جارٍ…";
+  SB.auth.updateUser({password:a}).then(function(r){
+    btn.disabled = false; btn.textContent = "تحديث كلمة مروري";
+    if(r.error) return say(errAr(r.error), "err");
+    $("ad_pw").value = ""; $("ad_pw2").value = "";
+    say("تم تحديث كلمة مرورك.", "ok");
+  });
+});
+
+(function boot(){
+  if(!CFGX.url || !CFGX.anonKey || /YOUR_/.test(CFGX.url + CFGX.anonKey)){
+    gateShow('<div class="msg err"><b>الإعداد غير مكتمل.</b><br>ضع بيانات Supabase في ملف <code>config.js</code>.</div>');
+    return;
+  }
+  if(!window.supabase){
+    gateShow('<div class="msg err">تعذّر تحميل مكتبة Supabase — تحقق من الاتصال ثم حدّث الصفحة.</div>');
+    return;
+  }
+  SB = window.supabase.createClient(CFGX.url, CFGX.anonKey, {
+    auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:"reval.auth"}
+  });
+  SB.auth.onAuthStateChange(function(ev){
+    if(ev === "SIGNED_OUT"){ ME = null; viewLogin(); }
+  });
+  SB.auth.getSession().then(function(r){ onSession(r.data.session); })
+    .catch(function(){ gateShow('<div class="msg err">تعذّر الاتصال بالخادم.</div>'); });
+})();
+
+})();
+</script>
+</body>
+</html>
