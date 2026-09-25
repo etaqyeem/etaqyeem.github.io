@@ -436,6 +436,12 @@ mark{background:var(--amber-soft); color:var(--amber); border-radius:3px; paddin
   display:inline-block; width:7px; height:7px; border-radius:50%;
   background:var(--amber); margin-inline-start:5px;
 }
+.sysnotice{
+  max-width:1220px; margin:0 auto 12px; display:flex; gap:9px; align-items:flex-start;
+  background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line));
+  color:var(--accent-ink); border-radius:var(--r); padding:9px 13px; font-size:12.5px;
+}
+.sysnotice b{flex:none}
 
 /* ---------- print ---------- */
 #report{display:none}
@@ -604,12 +610,19 @@ img{max-width:100%} [hidden]{display:none!important}
       <button class="btn" id="btnSample">أرقام الملف</button>
       <button class="btn" id="btnPrint">تصدير / طباعة</button>
       <button class="btn primary" id="btnSave">حفظ سحابي</button>
+      <a class="btn ghost" id="lnkAdmin" href="admin.html" target="_blank" rel="noopener" hidden
+         style="text-decoration:none">لوحة التحكم ↗</a>
       <button class="btn ghost" id="btnLogout" hidden>خروج</button>
     </div>
   </div>
 </div>
 
 <div class="wrap">
+
+<div class="sysnotice" id="sysNotice" hidden>
+  <b>◈ إعلان</b>
+  <div id="sysNoticeTxt"></div>
+</div>
 
 <div class="note" id="draftBar" hidden style="margin-bottom:16px">
   <span>&#8634;</span>
@@ -765,13 +778,6 @@ img{max-width:100%} [hidden]{display:none!important}
       <div class="saved" id="savedList"><div class="empty">لا توجد تقييمات محفوظة بعد.</div></div>
     </section>
 
-    <section class="panel" id="adminPanel" hidden>
-      <header>
-        <h2>إدارة المستخدمين</h2>
-        <span class="hint" id="pendingCount"></span>
-      </header>
-      <div style="overflow-x:auto"><table class="users-tbl" id="usersTbl"></table></div>
-    </section>
 
     <div class="note" id="notePanel">
       <span>⚑</span>
@@ -1569,8 +1575,39 @@ function renderSaved(docs){
   });
 }
 
+/* ---------- حصّة التقارير ---------- */
+function myReports(){
+  if(!ME) return 0;
+  return (SAVED_DOCS || []).filter(function(d){ return d.data && d.data.owner === ME.id; }).length;
+}
+function quotaHint(){
+  var el2 = document.getElementById("cloudState");
+  if(!el2 || !ME) return;
+  var lim = +(ME.limit || 0);
+  if(lim > 0){
+    var left = lim - myReports();
+    el2.textContent = "متزامن · تقاريرك " + myReports() + " من " + lim +
+      (left <= 0 ? " — بلغتَ الحد" : (left <= 3 ? " — المتبقي " + left : ""));
+  }else{
+    el2.textContent = "متزامن · " + SAVED_DOCS.length + " تقييم";
+  }
+}
+function quotaBlocked(){
+  var lim = +((ME && ME.limit) || 0);
+  if(lim > 0 && myReports() >= lim){
+    alertless("بلغت الحد المسموح (" + lim + " تقرير). راجع مدير النظام.");
+    return true;
+  }
+  if(+SET.max_reports > 0 && SAVED_DOCS.length >= +SET.max_reports){
+    alertless("بلغ النظام سقف التقارير (" + SET.max_reports + "). راجع مدير النظام.");
+    return true;
+  }
+  return false;
+}
+
 function doSave(btn, label){
   if(!ME){ alertless("سجّل الدخول أولًا"); return; }
+  if(!currentId && quotaBlocked()) return;
   var box = document.getElementById("saveName");
   var name = (box.value || "").trim() || S.name ||
     ((S.meta.district || "تقييم") + " — " + new Date().toISOString().slice(0,10));
@@ -1886,6 +1923,15 @@ function doLogin(){
 }
 
 function viewRegister(){
+  if(SET.allow_signup === false){
+    gateShow(
+      '<div class="gate-title">التسجيل مغلق</div>' +
+      '<div class="msg err">أوقف مدير النظام استقبال طلبات الحساب الجديد حاليًا.</div>' +
+      '<div class="gate-links"><button class="linkbtn" id="rc_back">العودة لتسجيل الدخول</button></div>',
+      function(){ document.getElementById("rc_back").addEventListener("click", viewLogin); }
+    );
+    return;
+  }
   gateShow(
     '<div class="gate-title">طلب حساب جديد</div>' +
     '<div class="msg wait">يصل الطلب إلى مدير النظام، ولا يفتح الحساب قبل اعتماده وتحديد صلاحيتك.</div>' +
@@ -2006,11 +2052,81 @@ function finishLogin(session, p){
     id: session.user.id,
     name: p.full_name || session.user.email,
     email: session.user.email,
-    role: p.role || "pending"
+    role: p.role || "pending",
+    limit: +(p.report_limit || 0),
+    mustPw: !!p.must_change_pw
   };
   if(ME.role === "pending") return viewPending();
   if(ME.role === "blocked") return viewBlocked();
-  enterApp();
+  loadSettings().then(function(){
+    if(SET.maintenance && ME.role !== "admin") return viewMaint();
+    if(ME.mustPw) return viewForcePassword();
+    enterApp();
+  });
+}
+
+/* ---------- إعدادات النظام (لوحة التحكم) ---------- */
+var SET = {
+  maintenance:false, maintenance_msg:"", allow_signup:true, auto_approve:false,
+  allow_export:true, default_limit:0, max_reports:0, notice:""
+};
+var SET_OK = false;
+
+function loadSettings(){
+  if(!SB) return Promise.resolve(SET);
+  return SB.from("app_settings").select("*").eq("id",1).maybeSingle().then(function(r){
+    if(r.data){
+      SET_OK = true;
+      Object.keys(SET).forEach(function(k){
+        if(r.data[k] !== undefined && r.data[k] !== null) SET[k] = r.data[k];
+      });
+    }
+    return SET;
+  }).catch(function(){ return SET; });
+}
+
+function viewMaint(){
+  gateShow(
+    '<div class="gate-title">النظام تحت الصيانة</div>' +
+    '<div class="msg wait">' + esc(SET.maintenance_msg || "التطبيق مغلق مؤقتًا للصيانة. حاول لاحقًا.") + '</div>' +
+    '<button class="btn primary" id="mt_ref" style="padding:9px">تحديث الحالة</button>' +
+    '<div class="gate-links"><button class="linkbtn" id="mt_out">تسجيل الخروج</button></div>',
+    function(){
+      document.getElementById("mt_ref").addEventListener("click", function(){
+        SB.auth.getSession().then(function(r){ onSession(r.data.session); });
+      });
+      document.getElementById("mt_out").addEventListener("click", logout);
+    }
+  );
+}
+
+function viewForcePassword(){
+  gateShow(
+    '<div class="gate-title">مطلوب تعيين كلمة مرور جديدة</div>' +
+    '<div class="msg wait">طلب مدير النظام تغيير كلمة مرورك. عيّن كلمة جديدة للمتابعة.</div>' +
+    gf("كلمة المرور الجديدة","fp_pw","password","٦ خانات فأكثر") +
+    gf("تأكيد كلمة المرور","fp_pw2","password") +
+    '<button class="btn primary" id="fp_go" style="padding:9px">حفظ والمتابعة</button>' +
+    '<div class="gate-links"><button class="linkbtn" id="fp_out">تسجيل الخروج</button></div>' +
+    '<div id="gmsg"></div>',
+    function(){
+      document.getElementById("fp_out").addEventListener("click", logout);
+      document.getElementById("fp_go").addEventListener("click", function(){
+        var a = val("fp_pw"), b = val("fp_pw2");
+        if(a.length < 6) return gmsg("كلمة المرور ٦ خانات على الأقل.");
+        if(a !== b)      return gmsg("كلمتا المرور غير متطابقتين.");
+        var btn = this; btn.disabled = true; btn.textContent = "جارٍ الحفظ…";
+        SB.auth.updateUser({password:a}).then(function(r){
+          if(r.error){ btn.disabled = false; btn.textContent = "حفظ والمتابعة"; return gmsg(errAr(r.error)); }
+          SB.rpc("clear_pw_flag").then(function(){
+            ME.mustPw = false;
+            btn.disabled = false; btn.textContent = "حفظ والمتابعة";
+            enterApp();
+          });
+        });
+      });
+    }
+  );
 }
 
 function enterApp(){
@@ -2022,10 +2138,11 @@ function enterApp(){
   document.getElementById("ucRole").textContent = R.label;
   document.getElementById("userChip").hidden = false;
   document.getElementById("btnLogout").hidden = false;
-  document.getElementById("btnPrint").hidden = !R.exp;
-  document.getElementById("adminPanel").hidden = !R.adm;
+  document.getElementById("btnPrint").hidden = !R.exp || SET.allow_export === false;
+  document.getElementById("lnkAdmin").hidden = !R.adm;
   ASSETS = true;
   alertless("متزامن");
+  applyNotice();
 
   if(!S.meta.appraiser && ME.name){
     S.meta.appraiser = ME.name;
@@ -2034,38 +2151,38 @@ function enterApp(){
     persist();
   }
   loadValuations();
-  if(R.adm) loadUsers();
   renderFiles();
   render();
 
-  /* رابط مختصر للوحة الإدارة: ‎#admin */
+  /* رابط مختصر للوحة التحكم: ‎#admin → صفحة مستقلة */
   if(location.hash === "#admin"){
-    setTimeout(function(){
-      var p = document.getElementById("adminPanel");
-      if(R.adm && p){
-        p.scrollIntoView({behavior:"smooth", block:"start"});
-        p.style.outline = "3px solid var(--accent)";
-        setTimeout(function(){ p.style.outline = ""; }, 2500);
-      }else{
-        alertless("لوحة الإدارة متاحة لحساب المدير فقط");
-      }
-    }, 500);
+    if(R.adm){ location.replace("admin.html"); }
+    else alertless("لوحة التحكم متاحة لحساب المدير فقط");
   }
+}
+
+function applyNotice(){
+  var box = document.getElementById("sysNotice");
+  var txt = document.getElementById("sysNoticeTxt");
+  if(!box || !txt) return;
+  var v = String(SET.notice || "").trim();
+  txt.textContent = v;
+  box.hidden = !v;
 }
 
 /* ---------- التقييمات ---------- */
 function loadValuations(){
-  SB.from("valuations").select("id,name,form_no,updated_at,by_name,state")
-    .order("updated_at", {ascending:false}).limit(300)
+  SB.from("valuations").select("id,name,form_no,updated_at,by_name,owner,state")
+    .order("updated_at", {ascending:false}).limit(500)
     .then(function(r){
       if(r.error){ alertless("تعذّر التحميل"); return; }
       renderSaved((r.data || []).map(function(row){
         return {id:row.id, data:{
           name:row.name, formNo:row.form_no, updatedAt:row.updated_at,
-          byName:row.by_name, state:row.state
+          byName:row.by_name, owner:row.owner, state:row.state
         }};
       }));
-      alertless("متزامن");
+      quotaHint();
     });
 }
 function STORE_save(id, payload){
@@ -2107,80 +2224,6 @@ window.__afterOpen = function(){
     });
 };
 
-/* ---------- إدارة المستخدمين ---------- */
-function loadUsers(){
-  SB.from("profiles").select("*").order("created_at", {ascending:true}).then(function(r){
-    renderUsers(r.data || []);
-  });
-}
-function renderUsers(list){
-  var tbl = document.getElementById("usersTbl");
-  var rows = ['<tr><th>المستخدم</th><th>الصلاحية</th><th></th></tr>'];
-  var pend = 0;
-  list = list.slice().sort(function(a,b){
-    if(a.role === "pending" && b.role !== "pending") return -1;
-    if(b.role === "pending" && a.role !== "pending") return 1;
-    return 0;
-  });
-  list.forEach(function(u){
-    if(u.role === "pending") pend++;
-    var isMe = (u.id === ME.id);
-    var opts = ["pending","entry","entry_export","admin","blocked"].map(function(k){
-      return '<option value="'+k+'"'+(u.role===k?" selected":"")+'>'+ROLES[k].label+'</option>';
-    }).join("");
-    rows.push(
-      '<tr>' +
-        '<td><div class="nm">' + esc(u.full_name || "—") +
-          (u.role === "pending" ? '<span class="pendingdot"></span>' : '') + '</div>' +
-          '<div class="ph">' + esc(u.email || "") + (isMe ? " · أنت" : "") + '</div></td>' +
-        '<td><select data-uid="'+u.id+'" class="roleSel"'+(isMe?" disabled":"")+'>'+opts+'</select></td>' +
-        '<td><div class="acts">' + (isMe ? '<span style="color:var(--faint);font-size:11px">حسابك</span>' :
-          (u.role === 'pending' ? '<button class="btn ghost" data-ok="'+u.id+'">اعتماد</button>' : '') +
-          '<button class="btn ghost" data-pause="'+u.id+'" data-cur="'+u.role+'">' +
-            (u.role === 'blocked' ? 'إعادة التفعيل' : 'إيقاف مؤقت') + '</button>' +
-          '<button class="btn ghost danger" data-del="'+u.id+'">حذف</button>') + '</div></td>' +
-      '</tr>'
-    );
-  });
-  tbl.innerHTML = rows.join("");
-  document.getElementById("pendingCount").textContent =
-    pend ? (pend + " طلب بانتظار الاعتماد") : (list.length + " مستخدم");
-
-  Array.prototype.forEach.call(tbl.querySelectorAll(".roleSel"), function(sel){
-    sel.addEventListener("change", function(){
-      setRole(sel.getAttribute("data-uid"), sel.value);
-    });
-  });
-  Array.prototype.forEach.call(tbl.querySelectorAll("[data-ok]"), function(b){
-    b.addEventListener("click", function(){ setRole(b.getAttribute("data-ok"), "entry"); });
-  });
-  Array.prototype.forEach.call(tbl.querySelectorAll("[data-pause]"), function(b){
-    b.addEventListener("click", function(){
-      var cur = b.getAttribute("data-cur");
-      setRole(b.getAttribute("data-pause"), cur === "blocked" ? "entry" : "blocked");
-    });
-  });
-  Array.prototype.forEach.call(tbl.querySelectorAll("[data-del]"), function(b){
-    b.addEventListener("click", function(){
-      if(!b.getAttribute("data-c")){
-        b.setAttribute("data-c","1"); b.textContent = "تأكيد الحذف";
-        setTimeout(function(){ b.removeAttribute("data-c"); b.textContent = "حذف"; }, 4000);
-        return;
-      }
-      SB.from("profiles").delete().eq("id", b.getAttribute("data-del")).then(function(r){
-        if(r.error){ alertless("تعذّر الحذف — تحقق من صلاحياتك"); return; }
-        loadUsers();
-      });
-    });
-  });
-}
-function setRole(uid, role){
-  SB.from("profiles").update({role:role}).eq("id", uid).then(function(r){
-    if(r.error){ alertless("تعذّر التعديل — تحقق من صلاحياتك."); return; }
-    loadUsers();
-  });
-}
-
 /* ---------- الإقلاع ---------- */
 document.getElementById("btnLogout").addEventListener("click", logout);
 document.getElementById("searchBox").addEventListener("input", function(){ renderSaved(); });
@@ -2207,8 +2250,9 @@ rebuildAll();
     if(ev === "SIGNED_OUT"){ ME = null; RECOVERY = false; viewLogin(); }
   });
   if(isRecoveryLink()){ viewNewPassword(); }
-  SB.auth.getSession().then(function(r){ if(RECOVERY) return; onSession(r.data.session); })
-    .catch(function(){ gateShow('<div class="msg err">تعذّر الاتصال بالخادم.</div>'); });
+  loadSettings().then(function(){
+    return SB.auth.getSession().then(function(r){ if(RECOVERY) return; onSession(r.data.session); });
+  }).catch(function(){ gateShow('<div class="msg err">تعذّر الاتصال بالخادم.</div>'); });
 })();
 
 })();
