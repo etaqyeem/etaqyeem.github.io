@@ -2167,6 +2167,84 @@ function applyNotice(){
   box.hidden = !v;
 }
 
+/* ---------- عرض تقرير مفرد (معاينة/تصدير من لوحة التحكم) ---------- */
+var RPT_ID = (function(){
+  var m = String(location.search || "").match(/[?&]report=([^&]+)/);
+  return m ? decodeURIComponent(m[1]) : "";
+})();
+var RPT_PRINT = /[?&]print=1/.test(String(location.search || ""));
+
+function extractPrintCss(){
+  var st = document.querySelector("style");
+  var css = st ? st.textContent : "";
+  var k = css.indexOf("@media print{");
+  if(k < 0) return "";
+  var i = css.indexOf("{", k), depth = 0, j = i;
+  for(; j < css.length; j++){
+    if(css[j] === "{") depth++;
+    else if(css[j] === "}"){ depth--; if(depth === 0) break; }
+  }
+  return css.slice(i + 1, j);
+}
+
+function openReportView(){
+  ensureFormNo();
+  document.getElementById("report").innerHTML = buildReport();
+
+  if(!document.getElementById("rvCss")){
+    var st = document.createElement("style");
+    st.id = "rvCss";
+    st.textContent = extractPrintCss() +
+      "\nbody{background:#DCD8CF}" +
+      "\n#report{max-width:210mm; margin:16px auto 40px; padding:10mm; background:#fff;" +
+      " box-shadow:0 10px 40px -18px rgba(18,32,42,.5)}" +
+      "\n.pg{min-height:auto; padding-bottom:8mm}" +
+      "\n#rvBar{position:sticky; top:0; z-index:99; display:flex; gap:9px; align-items:center;" +
+      " padding:9px 14px; background:#12202A; color:#fff; font-size:12.5px}" +
+      "\n#rvBar b{font-weight:600}" +
+      "\n#rvBar button{border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff;" +
+      " padding:5px 13px; border-radius:8px; font:inherit; cursor:pointer}" +
+      "\n#rvBar button.go{background:#E9B525; border-color:#E9B525; color:#12202A; font-weight:600}" +
+      "\n@media print{ #rvBar{display:none!important} " +
+      " #report{box-shadow:none; padding:0; margin:0; max-width:none} .pg{min-height:90vh; padding-bottom:0} }";
+    document.head.appendChild(st);
+  }
+
+  if(!document.getElementById("rvBar")){
+    var bar = document.createElement("div");
+    bar.id = "rvBar";
+    bar.innerHTML = '<b>معاينة التقرير</b><span id="rvName" style="opacity:.8"></span>' +
+      '<span style="margin-inline-start:auto"></span>' +
+      '<button type="button" class="go" id="rvPrint">طباعة / حفظ PDF</button>' +
+      '<button type="button" id="rvBack">رجوع</button>';
+    document.body.insertBefore(bar, document.body.firstChild);
+    document.getElementById("rvPrint").addEventListener("click", function(){ window.print(); });
+    document.getElementById("rvBack").addEventListener("click", function(){
+      if(window.parent && window.parent !== window){
+        try{ window.parent.postMessage("closeReport", "*"); }catch(e){}
+        return;
+      }
+      location.href = location.pathname;
+    });
+  }
+  document.getElementById("rvName").textContent = S.name ? ("— " + S.name) : "";
+  window.scrollTo(0, 0);
+  if(RPT_PRINT) setTimeout(function(){ window.print(); }, 800);
+}
+
+function maybeShowReport(){
+  if(!RPT_ID) return;
+  var hit = (SAVED_DOCS || []).filter(function(x){ return x.id === RPT_ID; })[0];
+  RPT_ID = "";
+  if(!hit || !hit.data || !hit.data.state){ alertless("تعذّر العثور على التقرير المطلوب"); return; }
+  S = JSON.parse(JSON.stringify(hit.data.state));
+  S.name = hit.data.name;
+  S.files = S.files || [];
+  currentId = hit.id;
+  persist(); rebuildAll();
+  openReportView();
+}
+
 /* ---------- التقييمات ---------- */
 function loadValuations(){
   SB.from("valuations").select("id,name,form_no,updated_at,by_name,owner,state")
@@ -2180,6 +2258,7 @@ function loadValuations(){
         }};
       }));
       quotaHint();
+      maybeShowReport();
     });
 }
 function STORE_save(id, payload){
