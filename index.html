@@ -610,8 +610,6 @@ img{max-width:100%} [hidden]{display:none!important}
       <button class="btn" id="btnSample">أرقام الملف</button>
       <button class="btn" id="btnPrint">تصدير / طباعة</button>
       <button class="btn primary" id="btnSave">حفظ سحابي</button>
-      <a class="btn ghost" id="lnkAdmin" href="admin.html" target="_blank" rel="noopener" hidden
-         style="text-decoration:none">لوحة التحكم ↗</a>
       <button class="btn ghost" id="btnLogout" hidden>خروج</button>
     </div>
   </div>
@@ -2139,7 +2137,6 @@ function enterApp(){
   document.getElementById("userChip").hidden = false;
   document.getElementById("btnLogout").hidden = false;
   document.getElementById("btnPrint").hidden = !R.exp || SET.allow_export === false;
-  document.getElementById("lnkAdmin").hidden = !R.adm;
   ASSETS = true;
   alertless("متزامن");
   applyNotice();
@@ -2156,7 +2153,7 @@ function enterApp(){
 
   /* رابط مختصر للوحة التحكم: ‎#admin → صفحة مستقلة */
   if(location.hash === "#admin"){
-    if(R.adm){ location.replace("admin.html"); }
+    if(R.adm){ location.replace("https://etaqyeem.github.io/control/"); }
     else alertless("لوحة التحكم متاحة لحساب المدير فقط");
   }
 }
